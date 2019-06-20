@@ -1,0 +1,176 @@
+.form_min,
+.form_mid,
+.form_lar,
+.form_ext {
+  position: relative;
+  top: 5%;
+  left: 50%;
+  padding: 20px;
+  box-shadow: 0px 0px 5px #a8a8a8;
+  overflow: auto;
+
+}
+
+
+.form_min {
+  width: 320px;
+  margin-left: -160px;
+}
+
+.form_mid {
+  width: 450px;
+  margin-left: -225px;
+}
+
+.form_lar {
+  width: 850px;
+  margin-left: -425px;
+}
+
+.form_ext {
+  width: 1024px;
+  margin-left: -512px;
+}
+
+
+
+.ac_icon {
+  font-size: 100px;
+  position: relative;
+  left: 50%;
+  margin-left: -50px;
+}
+
+.form_mid .mdl-textfield,
+.form_min .mdl-textfield,
+.form_min .mdl-button,
+.form_mid .mdl-button {
+  width: 99%;
+
+}
+
+.form_last_lab {
+  margin: 24px 0;
+}
+
+.form_min .mdl-button,
+.form_mid .mdl-button {
+  margin: 6px 0;
+}
+
+.card-spare {
+  float: left;
+  margin: 24px;
+  width: 230px;
+}
+
+.card-border {
+  border-bottom: 0.5px solid #999999;
+}
+
+
+.mdl-button--accent.mdl-button--accent.mdl-button--raised,
+.mdl-button--accent.mdl-button--accent.mdl-button--fab,
+.action_button {
+  background-color: #197cbc;
+}
+
+#shopping_cart {
+  max-height: 500px;
+}
+
+.my--mainContent-header {
+  margin: 10px 0;
+}
+
+.my-control-bar-button {
+  margin: 0px 5px 10px 0px;
+}
+
+.form_data {
+  margin: 10px 0;
+  box-shadow: 0px 0px 5px #a8a8a8;
+  height: 500px;
+  width: 500px;
+}
+
+.action_button {
+  width: 110px;
+}
+
+.mdc-card__action-buttons {
+  width: 100%;
+}
+
+.mdc-button.mdc-card__action.mdc-card__action--button.snackbar-demo-button.add_to_shopping_cart {
+  width: 100%;
+  background-color: #f3ecf5;
+}
+
+
+element.style {}
+
+.mdl-data-table td:first-of-type,
+.mdl-data-table th:first-of-type {
+  padding-left: 24px;
+}
+
+.mdl-data-table__cell--non-numeric.mdl-data-table__cell--non-numeric {
+  text-align: left;
+}
+
+.mdl-data-table th {
+  background-color: #a0a0a0;
+  color: white;
+  text-align: center;
+}
+
+ol {
+
+  padding-left: 60px;
+}
+
+ul {
+  padding-left: 0px;
+}
+
+#shopping_cart {
+  max-height: 0;
+  overflow: hidden;
+  transition: 2.5s;
+}
+
+#app-bar {
+  background-color: #197cbc;
+}
+
+.rightAlign {
+  border: 0;
+  text-align: right;
+}
+
+.rightAlign {
+  border: 0;
+  text-align: right;
+}
+
+.mdc-button {
+  background-color: #197cbc;
+}
+
+.main-content {
+  height: 90%;
+  overflow: auto;
+}
+
+.full {
+  width: 99%;
+}
+
+.h-full {
+  height: 99%;
+}
+
+.view_button {
+  background-color: #e8437c;
+}

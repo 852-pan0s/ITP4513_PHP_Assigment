@@ -1,0 +1,11 @@
+#app-bar {
+  background-color: #e2801e;
+}
+
+.form_mid .mdl-textfield__input{
+/*  width: 10px;*/
+}
+
+.status_list_width{
+  width:200px;
+}
