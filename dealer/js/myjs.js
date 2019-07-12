@@ -1,25 +1,8 @@
-isOpen = false;
-
-function adjustIframe() {
-//  if (!isOpen) {
-//    isOpen = true;
-//    //
-//    page.style.width = "82%"
-//  } else {
-//    isOpen = false;
-//    page.style.width = "100%"
-//  }
-}
-
 function openClose() {
-  console.log("Hi");
-  isOpen = false;
   page.style.width = "100%"
 }
 
 function openClose() {
-  console.log("Hi");
-  isOpen = false;
   page.style.width = "100%"
 }
 
@@ -98,14 +81,6 @@ function placeOrder() {
   }
 }
 
-function isCheckedDefault() {
-  if (use_default_addr.checked) {
-    address.value = "php-address";
-    address.setAttribute('readonly', '');
-  } else {
-    address.removeAttribute('readonly');
-  }
-}
 
 function showShoppingCart() {
   shopping_cart.style.maxHeight = "2048px";

@@ -174,3 +174,7 @@ ul {
 .view_button {
   background-color: #e8437c;
 }
+
+.error-msg{
+  color:#ff0000;
+}
