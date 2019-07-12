@@ -108,15 +108,21 @@
 }
 
 
-element.style {}
-
 .mdl-data-table td:first-of-type,
 .mdl-data-table th:first-of-type {
   padding-left: 24px;
 }
 
-.mdl-data-table__cell--non-numeric.mdl-data-table__cell--non-numeric {
+.mdl-data-table__cell--non-numeric.text_center {
+  text-align: center;
+}
+
+.mdl-data-table__cell--non-numeric.text_left {
   text-align: left;
+}
+
+.mdl-data-table__cell--non-numeric.text_right {
+  text-align: right;
 }
 
 .mdl-data-table th {

@@ -33,6 +33,35 @@
 
     <link rel="stylesheet" href="./css/bootstrap.min.css">
     <script src="./js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#btn_delete').click(function () {
+                var $get = "?delete=";
+                var shopping_partlist = document.getElementById('partList').children; //tbody
+                for (i = 0; i < shopping_partlist.length; i++) {
+                    if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr>td>label>input first column (checkbox)
+                        var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td
+                        $get += `${partNumber},`;
+                    }
+                }
+                $get = $get.substring(0, $get.length - 1); //remove last ,
+                console.log($get);
+                window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
+            });
+            $('#btn_add').click(function () {
+                var $get = "?add=";
+                var shopping_partlist = document.getElementById('selectpart').children; //tbody
+                for (i = 0; i < shopping_partlist.length; i++) {
+                    if (shopping_partlist[i].children[0].children[0].children[0].checked) {//tbody>tr>td>label>input first column (checkbox)
+                        var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td
+                        $get += `${partNumber},`;}
+                }
+                $get = $get.substring(0, $get.length - 1); //remove last ,
+                window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
+            });
+        });
+    </script>
 </head>
 
 <body class="mdc-typography">
@@ -45,14 +74,45 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
+$neworder = false;
 if (!isset($_SESSION["dealerID"])) {
   header("location:login.php");
-}else{
+} else {
   $sql = "SELECT * FROM dealer WHERE dealerID = '{$_SESSION['dealerID']}'";
-  $rs = mysqli_query($conn,$sql); // Get dealer information
+  $rs = mysqli_query($conn, $sql); // Get dealer information
   $rc = mysqli_fetch_assoc($rs); // Take the first row
   extract($rc);
 }
+
+
+if (isset($_GET["neworder"])) {
+  if ($_GET["neworder"]) {
+    $_SESSION[$dealerID]["shopping_cart"] = true;
+    header("location:shopping_cart.php");
+  }
+}
+if (isset($_SESSION[$dealerID]["shopping_cart"])) {
+  if ($_SESSION[$dealerID]["shopping_cart"] == true) {
+    echo "<script>showShoppingCart();</script>";
+  }
+}
+if (isset($_GET["add"])) { //add part
+  $add = $_GET["add"];
+  $partList = explode(",", $add);
+  foreach ($partList as $key => $value) {
+    $_SESSION["shopping_cart"][$value]["partNumber"] = "$value";
+    header("location:shopping_cart.php");
+  }
+}
+if (isset($_GET["delete"])) {//delete part
+  $delete = $_GET["delete"];
+  $partList = explode(",", $delete);
+  foreach ($partList as $key => $value) {
+    unset($_SESSION["shopping_cart"][$value]);
+    header("location:shopping_cart.php");
+  }
+}
+
 ?>
 <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
@@ -78,7 +138,6 @@ if (!isset($_SESSION["dealerID"])) {
         </section>
     </div>
 </header>
-
 <aside class="mdc-drawer mdc-drawer--dismissible" id="mdc-drawer">
     <div class="mdc-drawer__content" onclick="adjustIframe();">
         <nav class="mdc-list">
@@ -139,7 +198,7 @@ if (!isset($_SESSION["dealerID"])) {
             <h2 class="mdc-typography--headline5">Order</h2>
             <button id="btn_new" type="button"
                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
-                    onclick="showShoppingCart();">New
+                    onclick="window.location.assign('shopping_cart.php?neworder=true')">New
             </button>
 
             <div id="shopping_cart">
@@ -166,17 +225,18 @@ if (!isset($_SESSION["dealerID"])) {
                     <!--      form method="post"-->
                     <form action="" method="get" id="order" onchange="selectedCheckBox()">
                         <ul type="none" class="mdc-typography--headline6">
-                            <li>
+<!--                            <li>-->
                                 <!--            order id-->
-                                Order ID: <span name="orderID">php-orderId</span>
-                            </li>
+<!--                                Order ID: <span name="orderID">php-orderId</span>-->
+<!--                            </li>-->
                             <li>
                                 <!--    Delivery address-->
                                 Delivery Address:
                                 <div class="mdl-textfield mdl-js-textfield">
                                     <input class="mdl-textfield__input" name="deliveryAddress" type="text" id="address"
                                            title="8 digits" pattern="[a-zA-Z\d., ]{5,255}" maxlength="255"
-                                           placeholder="e.g.:flat  14/A, O house, Hello Road Street" value="<?php echo $address;?>"
+                                           placeholder="e.g.:flat  14/A, O house, Hello Road Street"
+                                           value="<?php echo $address; ?>"
                                            readonly required style="padding: 0">
                                 </div>
 
@@ -184,7 +244,8 @@ if (!isset($_SESSION["dealerID"])) {
                                 <div class="mdc-form-field">
                                     <div class="mdc-checkbox">
                                         <input type="checkbox" class="mdc-checkbox__native-control"
-                                               id="use_default_addr" checked onclick="isCheckedDefault(<?php $address;?>);"/>
+                                               id="use_default_addr" checked
+                                               onclick="isCheckedDefault('<?php echo $address; ?>');"/>
                                         <div class="mdc-checkbox__background">
                                             <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
                                                 <path class="mdc-checkbox__checkmark-path" fill="none"
@@ -203,6 +264,7 @@ if (!isset($_SESSION["dealerID"])) {
                             <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
                                 <thead>
                                 <tr>
+                                    <th class="mdl-data-table__cell--non-numeric">#ID</th>
                                     <th class="mdl-data-table__cell--non-numeric">Part Name</th>
                                     <th>Quantity</th>
                                     <th>Stock</th>
@@ -210,30 +272,31 @@ if (!isset($_SESSION["dealerID"])) {
                                     <th>Total price</th>
                                 </tr>
                                 </thead>
-                                <tbody id="partlist">
-                                <tr>
-                                    <td hidden><span name="partNumber">A12345</span></td>
-                                    <td class="mdl-data-table__cell--non-numeric">Part A</td>
-                                    <td>
-                                        <input type="number" id="qty1" class="rightAlign" value="1" max="99999" min="1"
-                                               onchange="countAmount(qty1,price1,total1);" required>
-                                    </td>
-                                    <td><span id="stock1">1000</span></td>
-                                    <td>$<span id="price1">1000</span></td>
-                                    <td>$<span id="total1">1000</span></td>
-                                </tr>
+                                <tbody id="partList">
 
-                                <tr>
-                                    <td hidden><span name="partNumber">B12345</span></td>
-                                    <td class="mdl-data-table__cell--non-numeric">Part B</td>
-                                    <td>
-                                        <input type="number" id="qty2" class="rightAlign" value="1" max="99999" min="1"
-                                               onchange="countAmount(qty2,price2,total2);" required>
-                                    </td>
-                                    <td><span id="stock1">1000</span></td>
-                                    <td>$<span id="price2">1000</span></td>
-                                    <td>$<span id="total2">1000</span></td>
-                                </tr>
+                                <?php
+                                if (isset($_SESSION["shopping_cart"])) { //if the dealer has added a part to the shopping cart
+                                  foreach ($_SESSION["shopping_cart"] as $key => $order) { //$order is the part that in the shopping cart
+                                    $sql = "SELECT * FROM part WHERE partNumber = {$order['partNumber']}"; //get the information of the part
+                                    $rs = mysqli_query($conn, $sql);
+                                    $rc = mysqli_fetch_assoc($rs);
+                                    extract($rc);
+                                    $orderline = <<<HTML_CODE
+   <tr class="tr_part">
+         <td class="mdl-data-table__cell--non-numeric td_partNumber">$partNumber</td>
+      <td class="mdl-data-table__cell--non-numeric td_partNumber">$partName</td>
+      <td>
+        <input type="number" id="qty{$order['partNumber']}" class="rightAlign" value="1" max="$stockQuantity" min="1"                     onchange="countAmount('#qty{$order['partNumber']}','#price{$order['partNumber']}','#total{$order['partNumber']}');" required>
+      </td>
+      <td><span id="stock{$order['partNumber']}">$stockQuantity</span></td>
+      <td>$<span id="price{$order['partNumber']}">$stockPrice</span></td>
+      <td>$<span id="total{$order['partNumber']}">$stockPrice</span></td>
+   </tr>
+HTML_CODE;
+                                    echo $orderline; //print the table row (order line in the shopping cart)
+                                  }
+                                }
+                                ?>
                                 </tbody>
                             </table>
                             <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
@@ -272,35 +335,40 @@ if (!isset($_SESSION["dealerID"])) {
                     </div>
                     <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp"
                            onchange="selectedCheckBoxFromDB()">
-                        <thead id="db_list_head">
+                        <thead id="tbl_part_list_head">
                         <tr>
-                            <th class="mdl-data-table__cell--non-numeric full">Part Name</th>
-                            <th>Stock</th>
-                            <th>Unit price</th>
+                            <th class="mdl-data-table__cell--non-numeric text_left">#ID</th>
+                            <th class="mdl-data-table__cell--non-numeric text_left full">Part Name</th>
+                            <th class="mdl-data-table__cell--non-numeric text_left">Stock</th>
+                            <th class="mdl-data-table__cell--non-numeric text_left">Unit price</th>
                         </tr>
                         </thead>
                         <tbody id="selectpart">
 
-                        <tr>
-                            <td hidden><span name="partNumber">A12345</span></td>
-                            <td class="mdl-data-table__cell--non-numeric">Part A</td>
-                            <td><span id="db-stock1">1000</span></td>
-                            <td>$<span id="db-price1">1000</span></td>
-                        </tr>
-
-                        <tr>
-                            <td hidden><span name="partNumber">B12345</span></td>
-                            <td class="mdl-data-table__cell--non-numeric">Part B</td>
-                            <td><span id="db-stock1">1000</span></td>
-                            <td>$<span id="db-price2">1000</span></td>
-                        </tr>
+                        <?php
+                        $sql = "SELECT * FROM part"; //get the information of all part
+                        $rs = mysqli_query($conn, $sql);
+                        while ($rc = mysqli_fetch_assoc($rs)) {
+                          extract($rc);
+                          if ($stockStatus == 2) continue;//2 = "Unavailable": The parts are unavailable (e.g. parts have defects). Skip the part.
+                          $partList = <<<HTML_CODE
+<tr>
+    <td class="mdl-data-table__cell--non-numeric text_left">$partNumber</td>
+    <td class="mdl-data-table__cell--non-numeric text_left">$partName</td>
+    <td class="mdl-data-table__cell--non-numeric text_left">$stockQuantity</td>
+    <td class="mdl-data-table__cell--non-numeric text_left">$$stockPrice</td>
+</tr>
+HTML_CODE;
+                          echo $partList;
+                        }
+                        ?>
                         </tbody>
                     </table>
                 </div>
                 <div class="modal-footer">
                     <!--          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
-                    <button id="btn_add" type="button" class="btn btn-primary" data-dismiss="modal" disabled="disabled"
-                            onclick="addToOrder();">Add
+                    <button id="btn_add" type="button" class="btn btn-primary" data-dismiss="modal" disabled="disabled">
+                        Add
                     </button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                 </div>
