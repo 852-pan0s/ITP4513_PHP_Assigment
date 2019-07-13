@@ -66,11 +66,11 @@ function selectedCheckBoxFromDB() {
 }
 
 function placeOrder() {
-    var shopping_partlist = partlist.children;
+    var shopping_partlist = partList.children;
     for (i = 0; i < shopping_partlist.length; i++) {
         if (shopping_partlist[i].classList.contains('is-selected')) {
             console.log(shopping_partlist[i].children[1].children[0].textContent);
-            order.submit();
+            //order.submit();
         }
     }
 }

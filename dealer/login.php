@@ -144,13 +144,16 @@ if (isset($_GET["logout"])) {
                     Log in
                 </button>
 
-                <div class="form_last_lab">no account? <a href="register.html">sign up</a></div>
+                <div class="form_last_lab">no account? <a href="register.php">sign up</a></div>
             </form>
         </div>
 
     </main>
 </div>
-<?php mysqli_close($conn);?>
+<?php
+mysqli_free_result($rs);
+mysqli_close($conn);
+?>
 <script src="./js/index.js"></script>
 </body>
 </html>

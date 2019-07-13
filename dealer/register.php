@@ -88,7 +88,7 @@ $conn = mysqli_connect($hostname, $username, $password, $database);
             <i class="material-icons ac_icon">
                 account_circle
             </i>
-            <form action="" method="get">
+            <form action="<?php ?>" method="get">
 
                 <!--        Dealer Id Input box-->
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
@@ -161,6 +161,10 @@ $conn = mysqli_connect($hostname, $username, $password, $database);
 
     </main>
 </div>
+<?php
+mysqli_free_result($rs);
+mysqli_close($conn);
+?>
 <script src="./js/index.js"></script>
 </body>
 </html>

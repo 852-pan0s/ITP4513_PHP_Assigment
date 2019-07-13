@@ -33,35 +33,6 @@
 
     <link rel="stylesheet" href="./css/bootstrap.min.css">
     <script src="./js/bootstrap.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            $('#btn_delete').click(function () {
-                var $get = "?delete=";
-                var shopping_partlist = document.getElementById('partList').children; //tbody
-                for (i = 0; i < shopping_partlist.length; i++) {
-                    if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr>td>label>input first column (checkbox)
-                        var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td
-                        $get += `${partNumber},`;
-                    }
-                }
-                $get = $get.substring(0, $get.length - 1); //remove last ,
-                console.log($get);
-                window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
-            });
-            $('#btn_add').click(function () {
-                var $get = "?add=";
-                var shopping_partlist = document.getElementById('selectpart').children; //tbody
-                for (i = 0; i < shopping_partlist.length; i++) {
-                    if (shopping_partlist[i].children[0].children[0].children[0].checked) {//tbody>tr>td>label>input first column (checkbox)
-                        var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td
-                        $get += `${partNumber},`;}
-                }
-                $get = $get.substring(0, $get.length - 1); //remove last ,
-                window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
-            });
-        });
-    </script>
 </head>
 
 <body class="mdc-typography">
@@ -93,27 +64,113 @@ if (isset($_GET["neworder"])) {
 }
 if (isset($_SESSION[$dealerID]["shopping_cart"])) {
   if ($_SESSION[$dealerID]["shopping_cart"] == true) {
-    echo "<script>showShoppingCart();</script>";
+    echo "<script>showShoppingCart();</script>"; //set the max height of shopping_cart div and hide the New button
   }
 }
 if (isset($_GET["add"])) { //add part
-  $add = $_GET["add"];
-  $partList = explode(",", $add);
+  $partList = explode(",", $_GET["add"]); //convert string to array by ','
   foreach ($partList as $key => $value) {
     $_SESSION["shopping_cart"][$value]["partNumber"] = "$value";
     header("location:shopping_cart.php");
   }
 }
 if (isset($_GET["delete"])) {//delete part
-  $delete = $_GET["delete"];
-  $partList = explode(",", $delete);
-  foreach ($partList as $key => $value) {
-    unset($_SESSION["shopping_cart"][$value]);
-    header("location:shopping_cart.php");
-  }
+  delete($_GET["delete"]);
+  header("location:shopping_cart.php");
 }
 
+if (isset($_GET["address"])) {
+  $skip = 0;
+  $delete = "";
+  $deliveryAddress = $_GET["address"];
+  $today = date("Y-m-d");
+  $sql = "INSERT INTO orders VALUES(null,'$dealerID','$today','$deliveryAddress',1)";
+  mysqli_query($conn, $sql); //Create a new order
+  foreach ($_GET as $part => $quantity) {
+    if ($skip++ == 0) continue; //skip the first element (delivery address)
+   // echo "$part = $quantity<br>";
+    $delete .= $part.",";
+    $_SESSION["placeOrder"][$part] = "$quantity";
+    $sql = "SELECT * FROM orders WHERE dealerID = '$dealerID' ORDER BY orderID DESC";
+    $rs = mysqli_query($conn, $sql);
+    $rc = mysqli_fetch_assoc($rs);
+    extract($rc);
+  }
+  foreach ($_SESSION["placeOrder"] as $part => $quantity) {
+    $sql = "SELECT * FROM part WHERE partNumber = $part";
+    $rs = mysqli_query($conn, $sql);
+    $rc = mysqli_fetch_assoc($rs);
+    extract($rc);
+    $sql = "UPDATE part set stockQuantity = stockQuantity-$quantity WHERE partNumber = $part";
+    mysqli_query($conn, $sql);
+    $sql = "INSERT INTO orderpart VALUES($orderID, $part, $quantity,$stockPrice)";
+    mysqli_query($conn, $sql);
+  }
+
+  unset($_SESSION["placeOrder"]);
+  $deletePart = substr($delete,0,strlen($delete)-1); //remove last ','
+  //echo($deletePart);
+  delete($deletePart);
+  header("location:shopping_cart.php");
+}
+
+function delete($delete)
+{
+  $partList = explode(",", $delete); //convert string to array by ','
+  foreach ($partList as $key => $value) {
+//      echo "$value";
+    unset($_SESSION["shopping_cart"][$value]);
+  }
+}
 ?>
+
+
+<script>
+    $(document).ready(function () {
+        $('#btn_buy').on('click', function () {
+            var $get = "?address=" + $("#address").val();
+            var shopping_partlist = document.getElementById('partList').children; //tbody
+            for (i = 0; i < shopping_partlist.length; i++) {
+                if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr>td>label>input first column (checkbox)
+                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td(id)
+                    var quantity = shopping_partlist[i].children[3].children[0].value;//tbody>tr>td>input(quantity)
+                    $get += `&${partNumber}=${quantity}`;
+                }
+            }
+            console.log($get);
+            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
+        });
+
+        $('#btn_delete').on('click', function () {
+            var $get = "?delete=";
+            var shopping_partlist = document.getElementById('partList').children; //tbody
+            for (i = 0; i < shopping_partlist.length; i++) {
+                if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr>td>label>input first column (checkbox)
+                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td
+                    $get += `${partNumber},`;
+                }
+            }
+            $get = $get.substring(0, $get.length - 1); //remove last ,
+            console.log($get);
+            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
+        });
+
+
+        $('#btn_add').on('click', function () {
+            var $get = "?add=";
+            var shopping_partlist = document.getElementById('selectpart').children; //tbody
+            for (i = 0; i < shopping_partlist.length; i++) {
+                if (shopping_partlist[i].children[0].children[0].children[0].checked) {//tbody>tr>td>label>input first column (checkbox)
+                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td
+                    $get += `${partNumber},`;
+                }
+            }
+            $get = $get.substring(0, $get.length - 1); //remove last ,
+            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
+        });
+    });
+</script>
+
 <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
         <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
@@ -202,33 +259,35 @@ if (isset($_GET["delete"])) {//delete part
             </button>
 
             <div id="shopping_cart">
-                <!--   control bar-->
-                <div class="my-control-bar">
-                    <button type="button"
-                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
-                            data-toggle="modal" data-target="#exampleModalCenter" onclick="init_btn_add();">Add Parts
-                    </button>
-
-
-                    <button type="button" id="btn_buy"
-                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
-                            onclick="placeOrder();" disabled="disabled">Place Order
-                    </button>
-
-                    <button type="button" id="btn_delete"
-                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
-                            disabled="disabled">Delete
-                    </button>
-
-                </div>
                 <div>
                     <!--      form method="post"-->
-                    <form action="" method="get" id="order" onchange="selectedCheckBox()">
+                    <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="get" id="order"
+                          onchange="selectedCheckBox()">
+                        <!--   control bar-->
+                        <div class="my-control-bar">
+                            <button type="button"
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
+                                    data-toggle="modal" data-target="#exampleModalCenter" onclick="init_btn_add();">Add
+                                Parts
+                            </button>
+
+
+                            <button type="button" id="btn_buy"
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
+                                    disabled="disabled">Place Order
+                            </button>
+
+                            <button type="button" id="btn_delete"
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
+                                    disabled="disabled">Delete
+                            </button>
+
+                        </div>
                         <ul type="none" class="mdc-typography--headline6">
-<!--                            <li>-->
-                                <!--            order id-->
-<!--                                Order ID: <span name="orderID">php-orderId</span>-->
-<!--                            </li>-->
+                            <!--                            <li>-->
+                            <!--            order id-->
+                            <!--                                Order ID: <span name="orderID">php-orderId</span>-->
+                            <!--                            </li>-->
                             <li>
                                 <!--    Delivery address-->
                                 Delivery Address:
@@ -377,6 +436,10 @@ HTML_CODE;
     </div>
 </div>
 
+<?php
+mysqli_free_result($rs);
+mysqli_close($conn);
+?>
 <script src="./js/index.js"></script>
 </body>
 
