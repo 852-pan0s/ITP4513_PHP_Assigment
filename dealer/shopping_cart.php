@@ -34,8 +34,8 @@
     <link rel="stylesheet" href="./css/bootstrap.min.css">
     <script src="./js/bootstrap.min.js"></script>
 </head>
-
-<body class="mdc-typography">
+<body class="mdc-typography"
+'>
 
 <?php
 session_start();
@@ -46,6 +46,9 @@ $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
 $neworder = false;
+$noEffect = "";
+$page = 1;
+$search ="";
 if (!isset($_SESSION["dealerID"])) {
   header("location:login.php");
 } else {
@@ -53,6 +56,24 @@ if (!isset($_SESSION["dealerID"])) {
   $rs = mysqli_query($conn, $sql); // Get dealer information
   $rc = mysqli_fetch_assoc($rs); // Take the first row
   extract($rc);
+}
+
+if (isset($_GET["page"])) {
+  $page = $_GET["page"];
+  echo "<script>
+$(document).ready(function(){
+    $('#btn_showList').click()
+});
+</script>";
+}
+
+if (isset($_GET["q"])) {
+  $search=$_GET["q"];
+  echo "<script>
+$(document).ready(function(){
+    $('#btn_showList').click()
+});
+</script>";
 }
 
 
@@ -88,8 +109,8 @@ if (isset($_GET["address"])) {
   mysqli_query($conn, $sql); //Create a new order
   foreach ($_GET as $part => $quantity) {
     if ($skip++ == 0) continue; //skip the first element (delivery address)
-   // echo "$part = $quantity<br>";
-    $delete .= $part.",";
+    // echo "$part = $quantity<br>";
+    $delete .= $part . ",";
     $_SESSION["placeOrder"][$part] = "$quantity";
     $sql = "SELECT * FROM orders WHERE dealerID = '$dealerID' ORDER BY orderID DESC";
     $rs = mysqli_query($conn, $sql);
@@ -108,7 +129,7 @@ if (isset($_GET["address"])) {
   }
 
   unset($_SESSION["placeOrder"]);
-  $deletePart = substr($delete,0,strlen($delete)-1); //remove last ','
+  $deletePart = substr($delete, 0, strlen($delete) - 1); //remove last ','
   //echo($deletePart);
   delete($deletePart);
   header("location:shopping_cart.php");
@@ -122,6 +143,7 @@ function delete($delete)
     unset($_SESSION["shopping_cart"][$value]);
   }
 }
+
 ?>
 
 
@@ -168,6 +190,11 @@ function delete($delete)
             $get = $get.substring(0, $get.length - 1); //remove last ,
             window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
         });
+
+        $('#btn_search').on('click', function(){
+            var search = $('#search').val();
+            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>?q=${search}`); //add part to the shopping cart
+        })
     });
 </script>
 
@@ -234,16 +261,17 @@ function delete($delete)
                         </div>
                     </div>
                     <div class="disabled step">
-                        <i class="payment icon"></i>
+                        <i class="truck icon"></i>
                         <div class="content">
-                            <div class="title">Billing</div>
-                            <div class="description">Enter billing information</div>
+                            <div class="title">Delivery</div>
+                            <div class="description">Your ordered parts are delivering.</div>
                         </div>
                     </div>
                     <div class="disabled step">
                         <i class="info icon"></i>
                         <div class="content">
-                            <div class="title">Confirm Order</div>
+                            <div class="title">Confirm</div>
+                            <div class="description">Receive the part.</div>
                         </div>
                     </div>
                 </div>
@@ -267,7 +295,8 @@ function delete($delete)
                         <div class="my-control-bar">
                             <button type="button"
                                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
-                                    data-toggle="modal" data-target="#exampleModalCenter" onclick="init_btn_add();">Add
+                                    data-toggle="modal" data-target="#exampleModalCenter" id="btn_showList"
+                                    onclick="init_btn_add();">Add
                                 Parts
                             </button>
 
@@ -334,6 +363,7 @@ function delete($delete)
                                 <tbody id="partList">
 
                                 <?php
+
                                 if (isset($_SESSION["shopping_cart"])) { //if the dealer has added a part to the shopping cart
                                   foreach ($_SESSION["shopping_cart"] as $key => $order) { //$order is the part that in the shopping cart
                                     $sql = "SELECT * FROM part WHERE partNumber = {$order['partNumber']}"; //get the information of the part
@@ -345,7 +375,13 @@ function delete($delete)
          <td class="mdl-data-table__cell--non-numeric td_partNumber">$partNumber</td>
       <td class="mdl-data-table__cell--non-numeric td_partNumber">$partName</td>
       <td>
-        <input type="number" id="qty{$order['partNumber']}" class="rightAlign" value="1" max="$stockQuantity" min="1"                     onchange="countAmount('#qty{$order['partNumber']}','#price{$order['partNumber']}','#total{$order['partNumber']}');" required>
+        <input type="number" id="qty{$order['partNumber']}" class="rightAlign" value="1" max="$stockQuantity" min="1"                     onchange="countAmount('#qty{$order['partNumber']}','#price{$order['partNumber']}','#total{$order['partNumber']}');" oninput="
+        if($('#qty{$order['partNumber']}').val()>$stockQuantity){
+            $('#qty{$order['partNumber']}').val($stockQuantity);
+        }else if($('#qty{$order['partNumber']}').val()<1){
+            $('#qty{$order['partNumber']}').val(1);
+        }"
+         required>
       </td>
       <td><span id="stock{$order['partNumber']}">$stockQuantity</span></td>
       <td>$<span id="price{$order['partNumber']}">$stockPrice</span></td>
@@ -387,10 +423,10 @@ HTML_CODE;
             </div>
             <div class="modal-body">
                 <div class="ui aligned basic segment mdc-typography">
-                    <div class="ui left icon action input">
+                    <div class="ui left icon action input" style="margin-bottom: 24px">
                         <i class="search icon"></i>
-                        <input type="text" placeholder="Part name">
-                        <div class="ui blue submit button">Search</div>
+                        <input type="text" placeholder="Part name" id="search">
+                        <div class="ui blue submit button" id="btn_search">Search</div>
                     </div>
                     <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp"
                            onchange="selectedCheckBoxFromDB()">
@@ -405,11 +441,35 @@ HTML_CODE;
                         <tbody id="selectpart">
 
                         <?php
-                        $sql = "SELECT * FROM part"; //get the information of all part
+                        if(strlen($search)>0){
+                          $sql = "SELECT * FROM part WHERE partName LIKE '%$search%'"; //get the information of all part
+                        }else{
+                          $sql = "SELECT * FROM part"; //get the information of all part
+                        }
                         $rs = mysqli_query($conn, $sql);
-                        while ($rc = mysqli_fetch_assoc($rs)) {
-                          extract($rc);
-                          if ($stockStatus == 2) continue;//2 = "Unavailable": The parts are unavailable (e.g. parts have defects). Skip the part.
+                        $row = mysqli_fetch_all($rs);
+                        //                        echo "<pre>";
+                        //                        print_r($row[0]);
+                        //                        echo "</pre>";
+                        $start = $page * 5 - 5;
+                        $end = $start + 5;
+//                        $skip = $start;
+//                        while ($row[$skip][5] == 2) {
+//                          echo "$skip ,{$row[$skip][5]},".count($row)."<br>";
+//                          $skip++;
+//                          $start++;
+//                          $end++;
+//                        }
+                        for ($i = $start; $i < $end && $i < count($row); $i++) {
+                          $partNumber = $row[$i][0];
+                          $partName = $row[$i][2];
+                          $stockQuantity = $row[$i][3];
+                          $stockPrice = $row[$i][4];
+                          $stockStatus = $row[$i][5];
+                          if ($stockStatus == 2 && $stockQuantity==0) {
+                            $end++;
+                            continue;
+                          }//2 = "Unavailable": The parts are unavailable (e.g. parts have defects). Skip the part.
                           $partList = <<<HTML_CODE
 <tr>
     <td class="mdl-data-table__cell--non-numeric text_left">$partNumber</td>
@@ -423,6 +483,23 @@ HTML_CODE;
                         ?>
                         </tbody>
                     </table>
+                    <nav aria-label="Page navigation" style="margin-top: 24px">
+                        <ul class="pagination justify-content-center">
+                          <?php
+                          $addition = "";
+                          if(strlen($search)>0){
+                              $addition = "q=$search&";
+                          }
+                          $totalPages = mysqli_num_rows($rs) / 5;
+                          for ($i = 1; $i < $totalPages + 1; $i++) {
+                            $pageHtml = <<<HTML_CODE
+ <li class="page-item"><a class="page-link" href="{$_SERVER['PHP_SELF']}?{$addition}page=$i">$i</a></li>
+HTML_CODE;
+                            echo $pageHtml;
+                          }
+                          ?>
+                        </ul>
+                    </nav>
                 </div>
                 <div class="modal-footer">
                     <!--          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->

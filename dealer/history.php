@@ -41,6 +41,19 @@ $conn = mysqli_connect($hostname, $username, $password, $database);
 if (!isset($_SESSION["dealerID"])) {
   header("location:login.php");
 }
+if(isset($_GET['cancel_order'])){
+    $sql = "UPDATE orders SET status = 4 WHERE orderID = {$_GET['cancel_order']}";
+    mysqli_query($conn,$sql);
+    header("location:{$_SERVER['PHP_SELF']}");
+}
+if(isset($_GET['confirm_order'])){
+  $sql = "UPDATE orders SET status = 3 WHERE orderID = {$_GET['confirm_order']}";
+  mysqli_query($conn,$sql);
+  header("location:{$_SERVER['PHP_SELF']}");
+}
+$sql ="SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}'";
+$rs = mysqli_query($conn,$sql);
+
 ?>
 <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
@@ -114,39 +127,47 @@ if (!isset($_SESSION["dealerID"])) {
                     </tr>
                     </thead>
                     <tbody id="orderlist">
-                    <tr>
+                    <?php
+                    while ($rc = mysqli_fetch_assoc($rs)) {
+                      extract($rc);
+                      $strStatus = "";
+                      $button = "";
+                      $cancel = "{$_SERVER['PHP_SELF']}?cancel_order=$orderID";
+                      $confirm = "{$_SERVER['PHP_SELF']}?confirm_order=$orderID";
+                      switch ($status) {
+                        case 1:
+                          $strStatus = "In processing";
+                          $button = "<button type='button' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button' onclick='window.location.assign(\"$cancel\")'>Cancel</button>";
+                          break;
+                        case 2:
+                          $strStatus = "Delivery";
+                          $button = "<button type='button' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button' onclick='window.location.assign(\"$confirm\")'>Confirm</button>";
+                          break;
+                        case 3:
+                          $strStatus = "Completed";
+                          break;
+                        case 4:
+                          $strStatus = "Canceled";
+                          break;
+                      }
+                      $orderlist = <<<HTML_CODE
+                          <tr>
                         <td hidden><input type="text" name="partNumber" value="A12345"></td>
-                        <td class="mdl-data-table__cell--non-numeric">1</td>
-                        <td><span id="date1">2019-06-06</span></td>
-                        <td><span id="address1">Flat 14/A, Hello Road</span></td>
-                        <td><span id="status1">In Process</span></td>
+                        <td class="mdl-data-table__cell--non-numeric">$orderID</td>
+                        <td><span id="date1">$orderDate</span></td>
+                        <td><span id="address1">$deliveryAddress</span></td>
+                        <td><span id="status1">$strStatus</span></td>
                         <td><span id="detail1"><a
-                                        onclick="window.open('detail.html', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">View</a></span>
+                                        onclick="window.open('detail.php?orderID=$orderID', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">View</a></span>
                         </td>
                         <td>
-                            <button id="action1" type="button" id="btn_concel"
-                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button">
-                                Concel
-                            </button>
+                            $button
                         </td>
                     </tr>
-
-                    <tr>
-                        <td hidden><input type="text" name="partNumber" value="A12345"></td>
-                        <td class="mdl-data-table__cell--non-numeric">2</td>
-                        <td><span id="date2">2019-06-06</span></td>
-                        <td><span id="address2">Flat 14/A, Hello Road</span></td>
-                        <td><span id="status2">Delivery</span></td>
-                        <td><span id="detail2"><a
-                                        onclick="window.open('detail.html', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">View</a></span>
-                        </td>
-                        <td>
-                            <button id="action2" type="button" id="btn_confirm"
-                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button">
-                                Confirm
-                            </button>
-                        </td>
-                    </tr>
+HTML_CODE;
+                      echo $orderlist;
+                    }
+                    ?>
                     </tbody>
                 </table>
             </div>
