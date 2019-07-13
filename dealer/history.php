@@ -27,6 +27,16 @@
     <!--  my css or js-->
     <link rel="stylesheet" href="./css/mycss.css">
     <script src="./js/myjs.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#btn_search').on('click', function(){
+                var search = $('#search').val();
+                window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>?q=${search}`); //add part to the shopping cart
+            })
+        });
+    </script>
 </head>
 
 <body class="mdc-typography">
@@ -37,6 +47,7 @@ $hostname = "127.0.0.1";
 $database = "projectDB";
 $username = "root";
 $password = "";
+$search = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
 if (!isset($_SESSION["dealerID"])) {
   header("location:login.php");
@@ -51,7 +62,13 @@ if(isset($_GET['confirm_order'])){
   mysqli_query($conn,$sql);
   header("location:{$_SERVER['PHP_SELF']}");
 }
-$sql ="SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}'";
+if(isset($_GET["q"])){
+    $search = $_GET["q"];
+    $sql ="SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}' AND orderID LIKE '%$search%'";
+    //echo $sql;
+}else{
+  $sql ="SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}'";
+}
 $rs = mysqli_query($conn,$sql);
 
 ?>
@@ -110,8 +127,8 @@ $rs = mysqli_query($conn,$sql);
             <div class="ui aligned basic segment mdc-typography">
                 <div class="ui left icon action input">
                     <i class="search icon"></i>
-                    <input type="text" placeholder="Order #">
-                    <div class="ui blue submit button">Search</div>
+                    <input type="text" placeholder="Order #" id="search">
+                    <div class="ui blue submit button" id="btn_search">Search</div>
                 </div>
 
                 <h2 class="mdc-typography--headline5">Result</h2>
