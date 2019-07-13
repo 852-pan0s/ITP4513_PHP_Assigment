@@ -135,8 +135,8 @@ $rs = mysqli_query($conn,$sql);
                 <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
                     <thead>
                     <tr class="">
-                        <th class="mdl-data-table__cell--non-numeric table_header">Order Id</th>
-                        <th>Order Date</th>
+                        <th class="mdl-data-table__cell--non-numeric left_border table_header">Order Id</th>
+                        <th class="mdl-data-table__cell--non-numeric left_border">Order Date</th>
                         <th>Delivery Address</th>
                         <th>Status</th>
                         <th>Detail</th>
@@ -171,10 +171,10 @@ $rs = mysqli_query($conn,$sql);
                           <tr>
                         <td hidden><input type="text" name="partNumber" value="A12345"></td>
                         <td class="mdl-data-table__cell--non-numeric">$orderID</td>
-                        <td><span id="date1">$orderDate</span></td>
-                        <td><span id="address1">$deliveryAddress</span></td>
-                        <td><span id="status1">$strStatus</span></td>
-                        <td><span id="detail1"><a
+                        <td class="mdl-data-table__cell--non-numeric center_border">$orderDate</td>
+                        <td class="mdl-data-table__cell--non-numeric left_border">$deliveryAddress</td>
+                        <td class="mdl-data-table__cell--non-numeric left_border">$strStatus</td>
+                        <td><a
                                         onclick="window.open('detail.php?orderID=$orderID', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">View</a></span>
                         </td>
                         <td>

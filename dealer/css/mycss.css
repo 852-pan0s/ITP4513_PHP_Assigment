@@ -154,8 +154,31 @@ ul {
     text-align: right;
 }
 
-.rightAlign {
+.mdl-data-table__cell--non-numeric.left{
     border: 0;
+    /*border-bottom: 1px solid black;*/
+    text-align: left;
+}
+.mdl-data-table__cell--non-numeric.center{
+    border: 0;
+    /*border-bottom: 1px solid black;*/
+    text-align: center;
+}
+.mdl-data-table__cell--non-numeric.right{
+    border: 0;
+    /*border-bottom: 1px solid black;*/
+    text-align: right;
+}
+
+.mdl-data-table__cell--non-numeric.center_border{
+    text-align: center;
+}
+
+.mdl-data-table__cell--non-numeric.left_border{
+    text-align: left;
+}
+
+.mdl-data-table__cell--non-numeric.right_border{
     text-align: right;
 }
 

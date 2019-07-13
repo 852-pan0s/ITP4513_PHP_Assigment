@@ -199,7 +199,7 @@ if (isset($_POST["dealerID"])) {
                       Reset
                   </button>
               </form>
-              <div class="form_last_lab">have account? <a href="login.html">log in</a></div>
+              <div class="form_last_lab">have account? <a href="login.php">log in</a></div>
           <?php } ?>
         </div>
 

@@ -157,8 +157,8 @@ FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = 
                 <table class="mdl-data-table mdl-js-data-tablemdl-shadow--2dp ">
                     <thead>
                     <tr>
-                        <th class="mdl-data-table__cell--non-numeric">Part Number</th>
-                        <th>Part Name</th>
+                        <th class="mdl-data-table__cell--non-numeric left">Part Number</th>
+                        <th class="mdl-data-table__cell--non-numeric">Part Name</th>
                         <th>Quantity</th>
                         <th>Unit price</th>
                         <th>Total price</th>
@@ -175,12 +175,12 @@ FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = 
                     <tr>
                         <td hidden><span name="partNumber">$partNumber</span></td>
                         <td class="mdl-data-table__cell--non-numeric">$partNumber</td>
-                        <td>$partName</td>
-                        <td>
-                            <input type="number" id="qty1" class="rightAlign" value="$quantity" readonly>
+                        <td class="mdl-data-table__cell--non-numeric">$partName</td>
+                        <td class="mdl-data-table__cell--non-numeric">
+                            <input type="number" id="qty1" class="mdl-data-table__cell--non-numeric center" value="$quantity" readonly>
                         </td>
-                        <td>$<span id="price1">$price</span></td>
-                        <td>$<span id="total1">$totalPrice</span></td>
+                        <td class="mdl-data-table__cell--non-numeric">$$price</span></td>
+                        <td class="mdl-data-table__cell--non-numeric">$$totalPrice</span></td>
                     </tr>
 HTML_CODE;
                       echo $orderline;
