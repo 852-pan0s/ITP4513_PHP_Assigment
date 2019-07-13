@@ -196,7 +196,7 @@ function delete($delete)
     </div>
 </header>
 <aside class="mdc-drawer mdc-drawer--dismissible" id="mdc-drawer">
-    <div class="mdc-drawer__content" onclick="adjustIframe();">
+    <div class="mdc-drawer__content">
         <nav class="mdc-list">
             <a class="mdc-list-item" href="history.php">
                 <i class="material-icons mdc-list-item__graphic" aria-hidden="true">history</i>
