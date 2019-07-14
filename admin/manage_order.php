@@ -100,7 +100,7 @@ if (isset($_GET['q'])) {
                 <td class="mdl-data-table__cell--non-numeric">${order.dealerID}</td>
                 <td class="mdl-data-table__cell--non-numeric">${order.name}</td>
                 <td class="mdl-data-table__cell--non-numeric">${order.orderDate}</td>
-                <td class="mdl-data-table__cell--non-numeric">${order.deliveryAddress}</td>
+               <!--   <td class="mdl-data-table__cell--non-numeric">${order.deliveryAddress}</td> -->
                 <td class="mdl-data-table__cell--non-numeric">${status}</td>
                 <td class="mdl-data-table__cell--non-numeric">
                           <button id="action1" type="button" id="btn_concel"
@@ -212,7 +212,7 @@ if (isset($_GET['q'])) {
                         <th>Dealer ID</th>
                         <th>Dealer Name</th>
                         <th>Order Date</th>
-                        <th>Delivery Address</th>
+<!--                        <th>Delivery Address</th>-->
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
