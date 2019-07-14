@@ -34,6 +34,7 @@
 
 <body class="mdc-typography">
 
+
 <?php
 session_start();
 //Database connection part
@@ -50,7 +51,96 @@ if (!isset($_SESSION["email"])) {
   $rc = mysqli_fetch_assoc($rs); // Take the first row
   extract($rc);
 }
+
+$link = "load_order.php";
+if (isset($_GET['q'])) {
+  if (strlen($_GET['q'] > 0)) {
+    $link .= "?q={$_GET['q']}";
+  }
+}
 ?>
+
+<script>
+    page = 1;
+
+    function changePage(cPage) {
+        page = cPage;
+        $("#orderlist").html("");
+        $.ajax({
+            type: 'get',
+            url: '<?php echo $link;?>',
+            dataType: 'json',
+            success: function (result) {
+                table = "";
+                for (var i = page * 10 - 10; i < page * 10 && i < result.length; i++) {
+                    // console.log(i);
+                    var order = result[i];
+                    var status = "a";
+                    switch (order.status) {
+                        case "1":
+                            status = "In processing";
+                            break;
+                        case "2":
+                            status = "Delivery";
+                            break;
+                        case "3":
+                            status = "Completed";
+                            break;
+                        case "4":
+                            status = "Canceled";
+                            break;
+                    }
+                    table += `
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">${order.orderID}</td>
+                <td class="mdl-data-table__cell--non-numeric">${order.dealerID}</td>
+                <td class="mdl-data-table__cell--non-numeric">${order.name}</td>
+                <td class="mdl-data-table__cell--non-numeric">${order.orderDate}</td>
+                <td class="mdl-data-table__cell--non-numeric">${order.deliveryAddress}</td>
+                <td class="mdl-data-table__cell--non-numeric">${status}</td>
+                <td class="mdl-data-table__cell--non-numeric">
+                          <button id="action1" type="button" id="btn_concel"
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button"
+                                    onclick="window.open('detail.php?orderID=${order.orderID}', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">
+                                View
+                            </button>
+                </td>
+              </tr>`;
+                }
+                $("#orderlist").append($(table));
+            },
+            error: function (err) {
+                console.log("error" + err);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $('#btn_search').on('click', function () {
+            $keyword = $('#search').val(); //get the input text where id = search
+            window.location.assign(`<?php echo $_SERVER['PHP_SELF'];?>?q=${$keyword}`)
+        });
+
+        $.ajax({
+            type: 'get',
+            url: '<?php echo $link;?>',
+            dataType: 'json',
+            success: function (result) {
+                table = "";
+                var totalPages = Math.ceil(result.length / 10.0); //every page shows 10 parts only. ceil for carry digit
+                var pageHTML = ""; //used for page HTML page
+                for (var i = 1; i <= totalPages; i++) {
+                    pageHTML += `<li class="page-item"><a class="page-link" href="#page${i}" onclick="changePage(${i})">${i}</a></li>`;
+                }
+                $("#pageNo").append($(pageHTML)); //add page number
+                changePage(1);
+            },
+            error: function (err) {
+                console.log("error" + err);
+            }
+        });
+    });
+</script>
 
 <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
@@ -106,8 +196,8 @@ if (!isset($_SESSION["email"])) {
             <div class="ui aligned basic segment mdc-typography">
                 <div class="ui left icon action input">
                     <i class="search icon"></i>
-                    <input type="text" placeholder="Order #">
-                    <div class="ui blue submit button">Search</div>
+                    <input type="text" placeholder="Order #" id="search">
+                    <div class="ui blue submit button" id="btn_search">Search</div>
                 </div>
 
                 <h2 class="mdc-typography--headline5">Result</h2>
@@ -119,26 +209,11 @@ if (!isset($_SESSION["email"])) {
                         <th>Dealer Name</th>
                         <th>Order Date</th>
                         <th>Delivery Address</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                     </thead>
                     <tbody id="orderlist">
-                    <tr>
-                        <td hidden><input type="text" name="partNumber" value="A12345"></td>
-                        <td class="mdl-data-table__cell--non-numeric">1</td>
-                        <td><span id="date1">1</span></td>
-                        <td><span id="address1">John</span></td>
-                        <td><span id="status1">2019-06-18</span></td>
-                        <td><span id="status1">Hello Road</span></td>
-                        <td>
-                            <button id="action1" type="button" id="btn_concel"
-                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button"
-                                    onclick="window.open('detail.php', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">
-                                View
-                            </button>
-                        </td>
-                    </tr>
-
                     </tbody>
                 </table>
             </div>
