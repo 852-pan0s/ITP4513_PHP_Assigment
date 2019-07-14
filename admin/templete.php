@@ -49,20 +49,13 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (isset($_GET["logout"])) {
-  if ($_GET["logout"]) {
-    session_destroy();
-    header("location:login.php");
-  }
+if (!isset($_SESSION["email"])) {
+  header("location:login.php");
 } else {
-  if (!isset($_SESSION["email"])) {
-    header("location:login.php");
-  } else {
-    $sql = "SELECT * FROM administrator WHERE email = '{$_SESSION['email']}'";
-    $rs = mysqli_query($conn, $sql); // Get dealer information
-    $rc = mysqli_fetch_assoc($rs); // Take the first row
-    extract($rc);
-  }
+  $sql = "SELECT * FROM administrator WHERE email = '{$_SESSION['email']}'";
+  $rs = mysqli_query($conn, $sql); // Get dealer information
+  $rc = mysqli_fetch_assoc($rs); // Take the first row
+  extract($rc);
 }
 
 ?>

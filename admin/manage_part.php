@@ -50,7 +50,6 @@ if (isset($_GET['q'])) {
 
 <script>
     page = 1;
-
     function changePage(cPage) {
         page = cPage;
         $("#orderlist").html("");
@@ -77,11 +76,11 @@ if (isset($_GET['q'])) {
                 <td class="mdl-data-table__cell--non-numeric">${part.partNumber}</td>
                 <td class="mdl-data-table__cell--non-numeric">${part.partName}</td>
                 <td class="mdl-data-table__cell--non-numeric">${part.stockQuantity}</td>
-                <td class="mdl-data-table__cell--non-numeric">${part.stockPrice}</td>
+                <td class="mdl-data-table__cell--non-numeric">$${part.stockPrice}</td>
                 <td class="mdl-data-table__cell--non-numeric">${part.email}</td>
                 <td class="mdl-data-table__cell--non-numeric">${status}</td>
                 <td class="mdl-data-table__cell--non-numeric">
-                    <a href="#${part.partNumber}" onclick="window.open('part.php?id=${part.partNumber}', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">Edit</a></td>
+                    <a href="#${part.partNumber}" onclick="window.open('part.php?id=${part.partNumber}', '_blank', 'location=yes,height=1000,width=700,scrollbars=yes,status=yes')">Edit</a></td>
               </tr>`;
                 }
                 $("#orderlist").append($(table));
@@ -192,7 +191,7 @@ if (!isset($_SESSION["email"])) {
         <div class="form_ext">
             <div class="ui center aligned basic segment mdc-typography">
                 <div class="ui teal labeled icon button"
-                     onclick="window.open('new_part.php', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">
+                     onclick="window.open('new_part.php', '_blank', 'location=yes,height=900,width=700,scrollbars=yes,status=yes')">
                     New Part
                     <i class="add icon"></i>
                 </div>

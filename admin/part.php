@@ -33,6 +33,30 @@
 
 <body class="mdc-typography">
 
+<?php
+session_start();
+//Database connection part
+$hostname = "127.0.0.1";
+$database = "projectDB";
+$username = "root";
+$password = "";
+$conn = mysqli_connect($hostname, $username, $password, $database);
+if (!isset($_SESSION["email"])||!isset($_GET['id'])) {
+  header("location:login.php");
+} else {
+  $sql = "SELECT * FROM administrator WHERE email = '{$_SESSION['email']}'";
+  $rs = mysqli_query($conn, $sql); // Get dealer information
+  $rc = mysqli_fetch_assoc($rs); // Take the first row
+  extract($rc);
+  $sql = "SELECT * FROM part WHERE partNumber = '{$_GET['id']}'";
+  $rs = mysqli_query($conn, $sql); // Get dealer information
+  $rc = mysqli_fetch_assoc($rs); // Take the first row
+  extract($rc);
+  $status = $stockStatus == 1? "Available":"Unavailable";
+}
+
+?>
+
   <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
       <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
@@ -63,35 +87,42 @@
     <main class="main-content mdc_typography mdc-typography--subtitle2" id="main-content">
       <div class="form_mid">
         <h2 class="mdc-typography--headline4">Edit Part</h2>
-        <form action="" method="post">
+
+        <form action="update_part.php" method="post">
+            <input type="text" name="update" hidden>
+            <?php if(isset($_GET["ok"])){?>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <div class="success-msg">Update Successfully!</div>
+                </div>
+            <?php }?>
           <ul type="none" class="mdc-typography--headline6">
             <li>
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
-                <input class="mdl-textfield__input" name="partNumber" type="text" id="partName" value="1" readonly>
+                <input class="mdl-textfield__input" name="partNumber" type="text" id="partNumber" value="<?php echo $partNumber;?>" readonly>
                 <label class="mdl-textfield__label" for="partNumber">Part Number</label>
               </div>
             </li>
             <li>
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
-                <input class="mdl-textfield__input" name="partName" type="text" id="partName" value="php-spareName" pattern="[a-zA-Z\d,.\-]{3,100}" maxlength="100" required readonly>
+                <input class="mdl-textfield__input" name="partName" type="text" id="partName" value="<?php echo $partName;?>" pattern="[a-zA-Z\d_ ()&,.\-/]{3,100}" maxlength="100" required>
                 <label class="mdl-textfield__label" for="partName">Part Name</label>
               </div>
             </li>
             <li>
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
-                <input class="mdl-textfield__input" name="spareQuantity" type="number" id="stockQuantity" value="1000" max="99999999" min="0" required>
+                <input class="mdl-textfield__input" name="stockQuantity" type="number" id="stockQuantity" value="<?php echo $stockQuantity;?>" max="99999999" min="0" required>
                 <label class="mdl-textfield__label" for="stockQuantity">Stock Quantity</label>
               </div>
             </li>
             <li>
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
-                <input class="mdl-textfield__input" name="sparePrice" type="number" id="stockPrice" value="1000" max="9999999" min="0" required>
+                <input class="mdl-textfield__input" name="stockPrice" type="number" id="stockPrice" value="<?php echo $stockPrice;?>" max="9999999" min="0" required>
                 <label class="mdl-textfield__label" for="stockPrice">Stock Price</label>
               </div>
             </li>
             <li>
               <div class="mdc-select demo-width-class">
-                <input type="hidden" name="enhanced-select">
+                <input type="hidden" name="stockStatus" value="<?php echo $status?>" id="status">
                 <i class="mdc-select__dropdown-icon"></i>
                 <div class="mdc-select__selected-text"></div>
                 <div class="mdc-select__menu mdc-menu mdc-menu-surface status_list_width">
@@ -110,11 +141,11 @@
             </li>
             <li>
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
-                <input class="mdl-textfield__input" name="email" type="text" id="email" value="php-spareName" maxlength="100" required readonly>
+                <input class="mdl-textfield__input" name="email" type="text" id="email" value="<?php echo $email?>" maxlength="100" required readonly>
                 <label class="mdl-textfield__label" for="email">email (who added the spare?)</label>
               </div>
             </li>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
         Update
       </button>
          <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="window.close();">
