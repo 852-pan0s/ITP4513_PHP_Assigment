@@ -60,6 +60,7 @@ if (isset($_GET['cancel_order'])) {
   $rc = mysqli_fetch_array($rs);
   if (($rc["status"] == "1" && $cStatus == "4")) { //1 = in processing , cStatus=change status, 1 can cancel
     $sql = "UPDATE orders SET status = 4 WHERE orderID = {$_GET['cancel_order']}";
+    mysqli_query($conn,$sql);
     header("location:{$_SERVER['PHP_SELF']}?ok");
   } else {
     header("location:{$_SERVER['PHP_SELF']}?fail");
@@ -76,6 +77,7 @@ if (isset($_GET['confirm_order'])) {
   $rc = mysqli_fetch_array($rs);
   if (($rc["status"] == "2" && $cStatus == "3")) {//2 can confirm the order
     $sql = "UPDATE orders SET status = 3 WHERE orderID = $id";
+    mysqli_query($conn,$sql);
     header("location:{$_SERVER['PHP_SELF']}?ok");
   } else {
     header("location:{$_SERVER['PHP_SELF']}?fail");
