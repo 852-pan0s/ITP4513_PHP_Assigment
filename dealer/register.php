@@ -68,9 +68,7 @@ if (isset($_POST["dealerID"])) {
                   <li class="mdl-menu__item" onclick="window.location.assign('login.php')">Log in</li>
                   <li class="mdl-menu__item" onclick="window.location.assign('register.php');">Sign up</li>
               <?php } else { ?>
-                  <li class="mdl-menu__item"
                   <li class="mdl-menu__item" onclick="window.location.assign('login.php?logout=true'); ">Log out</li>
-                  </li>
                   <li class="mdl-menu__item" onclick="window.location.assign('profile_editing.php');">Profile</li>
               <?php } ?>
             </ul>

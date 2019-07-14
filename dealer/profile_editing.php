@@ -47,24 +47,24 @@ if (!isset($_SESSION["dealerID"])) {
   $rs = mysqli_query($conn, $sql);
   $rc = mysqli_fetch_assoc($rs);
   extract($rc);
-  if(isset($_GET["error"])){
+  if (isset($_GET["error"])) {
     $error = $_GET["error"];
   }
-  if(isset($_GET["saved"])){
+  if (isset($_GET["saved"])) {
     $saved = $_GET["saved"];
   }
-  if(isset($_GET["password"])){
+  if (isset($_GET["password"])) {
     extract($_GET);
     $sql = "UPDATE dealer SET password = '$password', name = '$name', phoneNumber = '$phoneNumber', address = '$address' WHERE dealerID = '$dealerID'";
-    $saved=true;
+    $saved = true;
     //echo $sql;
-    mysqli_query($conn,$sql);
+    mysqli_query($conn, $sql);
     header("location:{$_SERVER['PHP_SELF']}?saved=true");
-  }else if(isset($_GET["name"])){
+  } else if (isset($_GET["name"])) {
     extract($_GET);
     $sql = "UPDATE dealer SET name = '$name', phoneNumber = '$phoneNumber', address = '$address' WHERE dealerID = '$dealerID'";
     //echo $sql;
-    mysqli_query($conn,$sql);
+    mysqli_query($conn, $sql);
     header("location:{$_SERVER['PHP_SELF']}?saved=true");
   }
 
@@ -110,7 +110,7 @@ if (!isset($_SESSION["dealerID"])) {
                     } else {
                         window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?name=${name}&phoneNumber=${phoneNumber}&address=${address}`);
                     }
-                }else{
+                } else {
                     window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?error=1`);
                 }
             })
@@ -132,9 +132,7 @@ if (!isset($_SESSION["dealerID"])) {
                       <li class="mdl-menu__item" onclick="window.location.assign('login.php')">Log in</li>
                       <li class="mdl-menu__item" onclick="window.location.assign('register.php');">Sign up</li>
                   <?php } else { ?>
-                      <li class="mdl-menu__item"
                       <li class="mdl-menu__item" onclick="window.location.assign('login.php?logout=true'); ">Log out
-                      </li>
                       </li>
                       <li class="mdl-menu__item" onclick="window.location.assign('profile_editing.php');">Profile</li>
                   <?php } ?>
