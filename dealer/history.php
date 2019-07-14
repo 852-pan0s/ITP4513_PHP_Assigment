@@ -31,7 +31,7 @@
 
     <script>
         $(document).ready(function () {
-            $('#btn_search').on('click', function(){
+            $('#btn_search').on('click', function () {
                 var search = $('#search').val();
                 window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>?q=${search}`); //add part to the shopping cart
             })
@@ -52,24 +52,43 @@ $conn = mysqli_connect($hostname, $username, $password, $database);
 if (!isset($_SESSION["dealerID"])) {
   header("location:login.php");
 }
-if(isset($_GET['cancel_order'])){
+if (isset($_GET['cancel_order'])) {
+  $id = $_GET['cancel_order'];
+  $cStatus = $_GET['status'];
+  $sql = "SELECT * FROM orders WHERE orderID = $id";
+  $rs = mysqli_query($conn, $sql);
+  $rc = mysqli_fetch_array($rs);
+  if (($rc["status"] == "1" && $cStatus == "4")) { //1 = in processing , cStatus=change status, 1 can cancel
     $sql = "UPDATE orders SET status = 4 WHERE orderID = {$_GET['cancel_order']}";
-    mysqli_query($conn,$sql);
-    header("location:{$_SERVER['PHP_SELF']}");
+    header("location:{$_SERVER['PHP_SELF']}?ok");
+  } else {
+    header("location:{$_SERVER['PHP_SELF']}?fail");
+  }
+
+  // mysqli_query($conn,$sql);
+  // header("location:{$_SERVER['PHP_SELF']}");
 }
-if(isset($_GET['confirm_order'])){
-  $sql = "UPDATE orders SET status = 3 WHERE orderID = {$_GET['confirm_order']}";
-  mysqli_query($conn,$sql);
-  header("location:{$_SERVER['PHP_SELF']}");
+if (isset($_GET['confirm_order'])) {
+  $id = $_GET['confirm_order'];
+  $cStatus = $_GET['status'];
+  $sql = "SELECT * FROM orders WHERE orderID = $id";
+  $rs = mysqli_query($conn, $sql);
+  $rc = mysqli_fetch_array($rs);
+  if (($rc["status"] == "2" && $cStatus == "3")) {//2 can confirm the order
+    $sql = "UPDATE orders SET status = 3 WHERE orderID = $id";
+    header("location:{$_SERVER['PHP_SELF']}?ok");
+  } else {
+    header("location:{$_SERVER['PHP_SELF']}?fail");
+  }
 }
-if(isset($_GET["q"])){
-    $search = $_GET["q"];
-    $sql ="SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}' AND orderID LIKE '%$search%'";
-    //echo $sql;
-}else{
-  $sql ="SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}'";
+if (isset($_GET["q"])) {
+  $search = $_GET["q"];
+  $sql = "SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}' AND orderID LIKE '%$search%' ORDER BY orderID DESC";
+  //echo $sql;
+} else {
+  $sql = "SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}' ORDER BY orderID DESC";
 }
-$rs = mysqli_query($conn,$sql);
+$rs = mysqli_query($conn, $sql);
 
 ?>
 <header class="mdc-top-app-bar app-bar" id="app-bar">
@@ -118,7 +137,8 @@ $rs = mysqli_query($conn,$sql);
             <h2 class="mdc-typography--headline4">Order History</h2>
             <ol class="mdc-typography--headline6">
                 <li>You can search your order history on this page.</li>
-                <li>Latest 10 records of the history will be shown below.</li>
+                <li>You can cancel or confirm your order on this page.</li>
+                <li>You can view the detail of orders.</li>
             </ol>
         </div>
         <div class="form_lar">
@@ -130,6 +150,15 @@ $rs = mysqli_query($conn,$sql);
                 </div>
 
                 <h2 class="mdc-typography--headline5">Result</h2>
+              <?php if (isset($_GET["ok"])) { ?>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                      <div class="success-msg">Your action has been done successfully!</div>
+                  </div>
+              <?php } else if (isset($_GET["fail"])) { ?>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                      <div class="error-msg">Fail! Please try again.</div>
+                  </div>
+              <?php } ?>
                 <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
                     <thead>
                     <tr class="">
@@ -147,8 +176,8 @@ $rs = mysqli_query($conn,$sql);
                       extract($rc);
                       $strStatus = "";
                       $button = "";
-                      $cancel = "{$_SERVER['PHP_SELF']}?cancel_order=$orderID";
-                      $confirm = "{$_SERVER['PHP_SELF']}?confirm_order=$orderID";
+                      $cancel = "{$_SERVER['PHP_SELF']}?cancel_order=$orderID&status=4";
+                      $confirm = "{$_SERVER['PHP_SELF']}?confirm_order=$orderID&status=3";
                       switch ($status) {
                         case 1:
                           $strStatus = "In processing";
@@ -184,6 +213,7 @@ HTML_CODE;
                     }
                     ?>
                     </tbody>
+
                 </table>
             </div>
         </div>

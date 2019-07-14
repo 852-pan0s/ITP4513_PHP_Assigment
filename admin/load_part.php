@@ -5,9 +5,9 @@ $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
 if (isset($_GET["q"])) {
-  $sql = "SELECT * FROM part WHERE partNumber LIKE '%{$_GET['q']}%'";
+  $sql = "SELECT * FROM part WHERE partNumber LIKE '%{$_GET['q']}%' ORDER BY partNumber DESC";
 } else {
-  $sql = "SELECT * FROM part";
+  $sql = "SELECT * FROM part ORDER BY partNumber DESC";
 }
 $rs = mysqli_query($conn, $sql);
 while ($rc = mysqli_fetch_assoc($rs)) {

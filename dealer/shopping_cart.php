@@ -132,7 +132,7 @@ if (isset($_GET["address"])) {
   $deletePart = substr($delete, 0, strlen($delete) - 1); //remove last ','
   //echo($deletePart);
   delete($deletePart);
-  header("location:shopping_cart.php");
+  header("location:shopping_cart.php?ok=$orderID");
 }
 
 function delete($delete)
@@ -159,7 +159,7 @@ function delete($delete)
                     $get += `&${partNumber}=${quantity}`;
                 }
             }
-            console.log($get);
+            //console.log($get);
             window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
         });
 
@@ -173,7 +173,7 @@ function delete($delete)
                 }
             }
             $get = $get.substring(0, $get.length - 1); //remove last ,
-            console.log($get);
+            //console.log($get);
             window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
         });
 
@@ -281,6 +281,13 @@ function delete($delete)
         <!--New order-->
         <div class="form_lar">
             <h2 class="mdc-typography--headline5">Order</h2>
+          <?php if (isset($_GET["ok"])) {
+            echo "<script>window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes');
+ window.location.assign('history.php');
+</script>";
+              ?>
+          <?php }?>
+
             <button id="btn_new" type="button"
                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
                     onclick="window.location.assign('shopping_cart.php?neworder=true')">New

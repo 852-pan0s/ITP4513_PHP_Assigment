@@ -40,6 +40,22 @@
 
 <?php
 session_start();
+//Database connection part
+$hostname = "127.0.0.1";
+$database = "projectDB";
+$username = "root";
+$password = "";
+$conn = mysqli_connect($hostname, $username, $password, $database);
+if (!isset($_SESSION["email"])) {
+  header("location:login.php");
+} else {
+  $sql = "SELECT * FROM administrator WHERE email = '{$_SESSION['email']}'";
+  $rs = mysqli_query($conn, $sql); // Get dealer information
+  $rc = mysqli_fetch_assoc($rs); // Take the first row
+  extract($rc);
+}
+
+
 $link = "load_part.php";
 if (isset($_GET['q'])) {
   if (strlen($_GET['q'] > 0)) {
@@ -117,24 +133,6 @@ if (isset($_GET['q'])) {
         });
     });
 </script>
-
-<?php
-//Database connection part
-$hostname = "127.0.0.1";
-$database = "projectDB";
-$username = "root";
-$password = "";
-$conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["email"])) {
-  header("location:login.php");
-} else {
-  $sql = "SELECT * FROM administrator WHERE email = '{$_SESSION['email']}'";
-  $rs = mysqli_query($conn, $sql); // Get dealer information
-  $rc = mysqli_fetch_assoc($rs); // Take the first row
-  extract($rc);
-}
-
-?>
 
 <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
