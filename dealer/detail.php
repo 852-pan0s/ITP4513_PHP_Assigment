@@ -31,25 +31,9 @@
     <!--  my css or js-->
     <link rel="stylesheet" href="./css/mycss.css">
     <script src="./js/myjs.js"></script>
-
-
-    <script>
-        function countTotalAmount() {
-            var total = 0;
-            var shopping_partlist = partlist.children;
-            for (i = 0; i < shopping_partlist.length; i++) {
-                //console.log(shopping_partlist[i].children[1].children[0].textContent);
-                var qty = shopping_partlist[i].children[3].children[0].value;
-                var price = shopping_partlist[i].children[4].children[0].textContent;
-                shopping_partlist[i].lastElementChild.lastElementChild.textContent = qty * price;
-                total += parseInt(shopping_partlist[i].lastElementChild.lastElementChild.textContent);
-            }
-            totalAmount.textContent = total;
-        }
-    </script>
 </head>
 
-<body class="mdc-typography" onload="countTotalAmount();">
+<body class="mdc-typography">
 <?php
 session_start();
 //Database connection part
@@ -97,6 +81,7 @@ FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = 
       break;
   }
 }
+$totalAmount = 0;
 ?>
 <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
@@ -171,6 +156,7 @@ FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = 
                     while ($rc = mysqli_fetch_assoc($rs)) {
                       extract($rc);
                       $totalPrice = $quantity * $price;
+                      $totalAmount += $totalPrice;
                       $orderline = <<<HTML_CODE
                     <tr>
                         <td hidden><span name="partNumber">$partNumber</span></td>
@@ -192,7 +178,7 @@ HTML_CODE;
                     <thead>
                     <tr>
                         <th class="mdl-data-table__cell--non-numeric">Total Amount</th>
-                        <th>$<span id="totalAmount">0</span></th>
+                        <th>$<span id="totalAmount"><?php echo $totalAmount;?></span></th>
                     </tr>
                     </thead>
                 </table>
@@ -205,7 +191,5 @@ HTML_CODE;
         </div>
     </main>
 </div>
-
-<script src="./js/index.js"></script>
 </body>
 </html>

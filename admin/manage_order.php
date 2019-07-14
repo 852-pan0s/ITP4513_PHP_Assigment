@@ -17,6 +17,10 @@
     <!--  <link rel="stylesheet" href="../dealer/css/mdc_checkbox.css">-->
     <!--  <script src="../dealer/js/mdc_checkbox.js"></script>-->
 
+    <!--bootstrap-->
+    <link rel="stylesheet" href="../dealer/css/bootstrap.min.css">
+    <script src="../dealer/js/bootstrap.min.js"></script>
+
     <!--  semantic-ui library-->
     <link rel="stylesheet" type="text/css" href="../dealer/node_modules/semantic-ui/dist/semantic.min.css">
     <script src="../dealer/node_modules/semantic-ui/dist/semantic.min.js"></script>
@@ -216,6 +220,10 @@ if (isset($_GET['q'])) {
                     <tbody id="orderlist">
                     </tbody>
                 </table>
+                <nav aria-label="Page navigation" style="margin-top: 24px">
+                    <ul class="pagination justify-content-center" id="pageNo">
+                    </ul>
+                </nav>
             </div>
         </div>
     </main>

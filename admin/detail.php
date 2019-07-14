@@ -33,23 +33,8 @@
     <script src="../dealer/js/myjs.js"></script>
     <link rel="stylesheet" href="./css/mycss.css">
 
-    <script>
-        function countTotalAmount() {
-            var total = 0;
-            var shopping_partlist = partlist.children;
-            for (i = 0; i < shopping_partlist.length; i++) {
-                //console.log(shopping_partlist[i].children[1].children[0].textContent);
-                var qty = shopping_partlist[i].children[3].children[0].value;
-                var price = shopping_partlist[i].children[4].children[0].textContent;
-                shopping_partlist[i].lastElementChild.lastElementChild.textContent = qty * price;
-                total += parseInt(shopping_partlist[i].lastElementChild.lastElementChild.textContent);
-            }
-            totalAmount.textContent = total;
-        }
-    </script>
 </head>
-
-<body class="mdc-typography" onload="countTotalAmount();">
+<body class="mdc-typography">
 <?php
 session_start();
 //Database connection part
@@ -58,13 +43,13 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["email"])|| (!isset($_GET['orderID']))) {
+if (!isset($_SESSION["email"]) || (!isset($_GET['orderID']))) {
   header("location:login.php");
 } else {
   $sql = "SELECT o.orderID, o.dealerID, o.orderDate, o.deliveryAddress, o.status, d.name 
 FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = d.dealerID";
   $rs = mysqli_query($conn, $sql); // Get dealer information
-  if(mysqli_num_rows($rs)<1)  header("location:history.php");
+  if (mysqli_num_rows($rs) < 1) header("location:history.php");
   $rc = mysqli_fetch_assoc($rs); // Take the first row
   extract($rc);
   $step1 = "";
@@ -97,7 +82,20 @@ FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = 
       break;
   }
 }
+$totalAmount = 0;
 ?>
+
+<script>
+    $(document).ready(function () {
+        $("#btn_start").on('click', function () {
+            window.location.assign("update_order.php?id=<?php echo $orderID;?>&status=2");
+        });
+        $("#btn_cancel").on('click', function () {
+            window.location.assign("update_order.php?id=<?php echo $orderID;?>&status=4");
+        });
+    });
+</script>
+
 <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
         <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
@@ -139,6 +137,34 @@ FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = 
                     </div>
                 </div>
             </div>
+
+            <div class="form_lar">
+                <h2 class="mdc-typography--headline5" id="action">Available Action</h2>
+              <?php if (isset($_GET["ok"])) { ?>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                      <div class="success-msg">Update Successfully!</div>
+                  </div>
+              <?php } else if (isset($_GET["fail"])) { ?>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <div class="error-msg">Update Fail! Another admin did it before.</div>
+                </div>
+
+                  <?php }
+                  if ($status == "1") { ?>
+
+                      <button id="btn_start"
+                              class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                          Start Delivery
+                      </button>
+                  <?php }
+                  if ($status != "4") { ?>
+                      <button id="btn_cancel"
+                              class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                          Cancel Order
+                      </button>
+                  <?php } ?>
+
+            </div>
             <div class="form_lar">
                 <ul type="none" class="mdc_typography mdc-typography--headline6">
                     <li>
@@ -171,6 +197,7 @@ FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = 
                     while ($rc = mysqli_fetch_assoc($rs)) {
                       extract($rc);
                       $totalPrice = $quantity * $price;
+                      $totalAmount += $totalPrice;
                       $orderline = <<<HTML_CODE
                     <tr>
                         <td hidden><span name="partNumber">$partNumber</span></td>
@@ -192,7 +219,7 @@ HTML_CODE;
                     <thead>
                     <tr>
                         <th class="mdl-data-table__cell--non-numeric">Total Amount</th>
-                        <th>$<span id="totalAmount">0</span></th>
+                        <th>$<span id="totalAmount"><?php echo $totalAmount ?></span></th>
                     </tr>
                     </thead>
                 </table>
@@ -206,6 +233,5 @@ HTML_CODE;
     </main>
 </div>
 
-<script src="./js/index.js"></script>
 </body>
 </html>
