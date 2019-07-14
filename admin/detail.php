@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Order Detail</title>
     <script src="../dealer/node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -43,10 +44,11 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
+//check if the user logged in the system or no order id is provided
 if (!isset($_SESSION["email"]) || (!isset($_GET['orderID']))) {
-  header("location:login.php");
+  header("location:login.php"); //return to login page
 } else {
-  $sql = "SELECT o.orderID, o.dealerID, o.orderDate, o.deliveryAddress, o.status, d.name 
+  $sql = "SELECT o.orderID, o.dealerID, o.orderDate, o.deliveryAddress, o.status, d.name, o.dealerID
 FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = d.dealerID";
   $rs = mysqli_query($conn, $sql); // Get dealer information
   if (mysqli_num_rows($rs) < 1) header("location:history.php");
@@ -140,29 +142,37 @@ $totalAmount = 0;
 
             <div class="form_lar">
                 <h2 class="mdc-typography--headline5" id="action">Available Action</h2>
-              <?php if (isset($_GET["ok"])) { ?>
-                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <?php echo "<div class='full'>";
+              if (isset($_GET["ok"])) { ?>
+                  <div class="full mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                       <div class="success-msg">Update Successfully!</div>
                   </div>
               <?php } else if (isset($_GET["fail"])) { ?>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <div class="error-msg">Update Fail! Another admin did it before.</div>
-                </div>
+                  <div class="full mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                      <div class="error-msg">Update Fail! Another admin did it before.</div>
+                  </div>
+              <?php } else if (isset($_GET["out_of_stock"])) { ?>
+                  <div class="full mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                      <div class="error-msg">Start delivery
+                          fail! <?php echo "{$_GET['out_of_stock']} is out of stock!" ?></div>
+                  </div>
 
-                  <?php }
-                  if ($status == "1") { ?>
-
-                      <button id="btn_start"
-                              class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-                          Start Delivery
-                      </button>
-                  <?php }
-                  if ($status != "4") { ?>
-                      <button id="btn_cancel"
-                              class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-                          Cancel Order
-                      </button>
-                  <?php } ?>
+              <?php }
+              echo "</div>";
+              echo "<div>";
+              if ($status == "1") { ?>
+                  <button id="btn_start"
+                          class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                      Start Delivery
+                  </button>
+              <?php }
+              if ($status != "4") { ?>
+                  <button id="btn_cancel"
+                          class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                      Cancel Order
+                  </button>
+              <?php }
+              echo "</div>"; ?>
 
             </div>
             <div class="form_lar">
@@ -170,6 +180,7 @@ $totalAmount = 0;
                     <li>
                         <div class="mdc-typography--headline5">Order ID: <?php echo $orderID; ?></div>
                     </li>
+                    <li>Dealer ID: <?php echo $dealerID; ?></li>
                     <li>Dealer name: <?php echo $name; ?></li>
                     <li class="mdc_typography mdc-typography--headline6">Delivery
                         Address: <?php echo $deliveryAddress; ?></li>

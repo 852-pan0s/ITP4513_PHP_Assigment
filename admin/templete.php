@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-
+<!--This page is used for coding other pages as a template-->
 <head>
     <script src="../dealer/node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Profile</title>
     <script src="./node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -40,32 +41,32 @@ $password = "";
 $error = 2;
 $saved = false;
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["dealerID"])) {
-  header("location:login.php");
+if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
+  header("location:login.php");//redirect to login page
 } else {
   $sql = "SELECT * FROM dealer WHERE dealerID = '{$_SESSION['dealerID']}'";
   $rs = mysqli_query($conn, $sql);
   $rc = mysqli_fetch_assoc($rs);
   extract($rc);
-  if (isset($_GET["error"])) {
+  if (isset($_GET["error"])) {//if error occurs
     $error = $_GET["error"];
   }
-  if (isset($_GET["saved"])) {
+  if (isset($_GET["saved"])) {//if saved successfully
     $saved = $_GET["saved"];
   }
-  if (isset($_GET["password"])) {
+  if (isset($_GET["password"])) {//if the dealer is going to change the password
     extract($_GET);
     $sql = "UPDATE dealer SET password = '$password', name = '$name', phoneNumber = '$phoneNumber', address = '$address' WHERE dealerID = '$dealerID'";
     $saved = true;
     //echo $sql;
     mysqli_query($conn, $sql);
-    header("location:{$_SERVER['PHP_SELF']}?saved=true");
+    header("location:{$_SERVER['PHP_SELF']}?saved=true");//redirect self page and show saved message
   } else if (isset($_GET["name"])) {
     extract($_GET);
     $sql = "UPDATE dealer SET name = '$name', phoneNumber = '$phoneNumber', address = '$address' WHERE dealerID = '$dealerID'";
     //echo $sql;
     mysqli_query($conn, $sql);
-    header("location:{$_SERVER['PHP_SELF']}?saved=true");
+    header("location:{$_SERVER['PHP_SELF']}?saved=true");//redirect self page and show saved message
   }
 
   ?>
@@ -73,45 +74,56 @@ if (!isset($_SESSION["dealerID"])) {
         $(document).ready(function () {
             $("#new_password").on('input', function () {
                 if ($(this).val().length > 0) {
-                    $(this).attr("pattern", "[a-zA-Z\\d]{6,50}");
+                    $(this).attr("pattern", "[a-zA-Z\\d]{6,50}");//set regular expression
 
-                    $("#confirm_password_div").css("maxHeight", "1000px");
-                    $("#confirm_password_div input, #confirm_password_div label").css("display", "block");
-                    if ($("#confirm_password").val() !== $("#new_password").val()) {
-                        $("#confirm_password_div").addClass("is-invalid");
+                    $("#confirm_password_div").css("maxHeight", "1000px");//for transition effect
+                    $("#confirm_password_div input, #confirm_password_div label").css("display", "block");//show the div
+                    if ($("#confirm_password").val() !== $("#new_password").val()) { //if the new password != confirm password
+                        $("#confirm_password_div").addClass("is-invalid"); //set the input box to red
+                        $("#confirm_password").attr("pattern", "0{99}"); //set pattern to show the title message
+                        $("#confirm_password").attr("required", "required");//confirm password must be entered
+                        $("#confirm_password").attr("title", "Two passwords must be same.");//when the new password != confirm password, it will display
                     } else {
-                        $("#confirm_password_div").removeClass("is-invalid");
+                        $("#confirm_password_div").removeAttr("required");//remove require html attribute
+                        $("#confirm_password_div").removeAttr("pattern");//remove pattern html attribute
+                        $("#confirm_password_div").removeAttr("title");//remove title html attribute
+                        $("#confirm_password_div").removeClass("is-invalid");//remove class which made the input red
                     }
                 } else {
-                    $("#confirm_password_div").css("maxHeight", "0");
-                    $("#confirm_password_div input, #confirm_password_div label").css("display", "none");
-                    $(this).removeAttr("pattern");
+                    $("#confirm_password_div").css("maxHeight", "0");//for transition effect
+                    $("#confirm_password_div input, #confirm_password_div label").css("display", "none");//hide the div
+                    $(this).removeAttr("pattern");//remove pattern html attribute
                 }
             });
-            $("#confirm_password").on('change', function () {
-                if ($(this).val() === $("#new_password").val()) {
-                    $(this).removeAttr("required");
+            $("#confirm_password").on('input', function () {
+                if ($(this).val() === $("#new_password").val()) {//if the new password == confirm password
+                    $(this).removeAttr("required"); //remove require html attribute
+                    $(this).removeAttr("pattern"); //remove pattern html attribute
+                    $(this).removeAttr("title"); //remove title html attribute
+                    $("#confirm_password_div").removeClass("is-invalid");//remove class which made the input red
                 } else {
-                    $(this).attr("required", "required");
-                    $("#confirm_password_div").addClass("is-invalid");
+                    $("#confirm_password").attr("pattern", "0{99}"); //set pattern to show the title message
+                    $("#confirm_password").attr("required", "required");//confirm password must be entered
+                    $("#confirm_password").attr("title", "Two passwords must be same.");;//when the new password != confirm password, it will display
+                    $("#confirm_password_div").addClass("is-invalid"); //set the input box to red
                 }
             });
             $("#btn_save").on("click", function () {
                 if ($("#password").val() == <?php echo $password?>) {
-                    var new_password = $("#confirm_password").val();
-                    var name = $("#dealerName").val();
-                    var phoneNumber = $("#phoneNo").val();
-                    var address = $("#address").val();
-                    if ($("#new_password").val().length > 0) {
-                        console.log("OK");
+                    var new_password = $("#confirm_password").val(); //get new password
+                    var name = $("#dealerName").val(); //get name
+                    var phoneNumber = $("#phoneNo").val();//get phoneNo
+                    var address = $("#address").val();//get address
+                    if ($("#new_password").val().length > 0) { //if new password is entered
+                        // console.log("OK");
                         if ($("#new_password").val() === $("#confirm_password").val()) {
                             window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?password=${new_password}&name=${name}&phoneNumber=${phoneNumber}&address=${address}`);
-                        }
+                        }//update all information
                     } else {
-                        window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?name=${name}&phoneNumber=${phoneNumber}&address=${address}`);
+                        window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?name=${name}&phoneNumber=${phoneNumber}&address=${address}`); //update all information except password
                     }
                 } else {
-                    window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?error=1`);
+                    window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?error=1`);//update fail, password is incorrect
                 }
             })
         });
@@ -167,7 +179,7 @@ if (!isset($_SESSION["dealerID"])) {
                 </i>
               <?php if ($error == 1) { ?>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                      <div class="error-msg"><?php echo "*Password is not correct."; ?></div>
+                      <div class="error-msg"><?php echo "*Password is incorrect."; ?></div>
                   </div>
               <?php } ?>
               <?php if ($saved == true) { ?>
@@ -202,8 +214,7 @@ if (!isset($_SESSION["dealerID"])) {
                     <!--        comfirm password-->
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" id="confirm_password_div"
                          style="display: block;">
-                        <input class="mdl-textfield__input" type="password" id="confirm_password"
-                               title=">=6 letters or digits" maxlength="50">
+                        <input class="mdl-textfield__input" type="password" id="confirm_password" maxlength="50">
                         <label class="mdl-textfield__label" for="confirm_password">Re Enter Password</label>
                     </div>
 

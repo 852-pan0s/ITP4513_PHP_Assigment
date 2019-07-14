@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Login</title>
     <script src="../dealer/node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -42,21 +43,21 @@ $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
 session_start();
-$error = false;
+$error = false; //if error is true, it will show some error message to the user
+//check if the user wants to logout
 if (isset($_GET["logout"])) {
   if ($_GET["logout"]) {
-    session_destroy();
-    header("location:login.php");
+    session_destroy(); //destroy all session
+    header("location:login.php"); //redirect to login page
   }
 } else
-  if (!isset($_SESSION["email"])) { //if the dealer does not log in before
-    if (isset($_POST["email"])) { //if the dealer click "login"
+  if (!isset($_SESSION["email"])) { //if the admin does not log in before
+    if (isset($_POST["email"])) { //if the admin click "login"
       extract($_POST);
 
       $sql = "SELECT * FROM administrator WHERE email = '$email' AND password = '$password'";
       $rs = mysqli_query($conn, $sql);
-      if (mysqli_num_rows($rs) > 0) {
-        session_start();
+      if (mysqli_num_rows($rs) > 0) { //email and password not found
         $_SESSION["email"] = $email;
         header("location:manage_order.php");
       } else {
@@ -65,7 +66,7 @@ if (isset($_GET["logout"])) {
       mysqli_free_result($rs);
     }
   } else {
-    header("location:manage_order.php");
+    header("location:manage_order.php");//redirect to manage_order page
   }
 ?>
 

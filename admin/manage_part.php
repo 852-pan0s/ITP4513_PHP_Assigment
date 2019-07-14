@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <title>Part Management</title>
     <script src="../dealer/node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -46,8 +47,8 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["email"])) {
-  header("location:login.php");
+if (!isset($_SESSION["email"])) { //if the admin does not log in before
+  header("location:login.php"); //redirect to login page
 } else {
   $sql = "SELECT * FROM administrator WHERE email = '{$_SESSION['email']}'";
   $rs = mysqli_query($conn, $sql); // Get dealer information
@@ -56,30 +57,30 @@ if (!isset($_SESSION["email"])) {
 }
 
 
-$link = "load_part.php";
-if (isset($_GET['q'])) {
+$link = "load_part.php";  //for load part
+if (isset($_GET['q'])) {//if the search input has keyword
   if (strlen($_GET['q'] > 0)) {
-    $link .= "?q={$_GET['q']}";
+    $link .= "?q={$_GET['q']}"; //add keyword to q
   }
 }
 ?>
 
 <script>
-    page = 1;
+    page = 1; //page navigation
     function changePage(cPage) {
-        page = cPage;
-        $("#orderlist").html("");
+        page = cPage;// cPage = change page
+        $("#orderlist").html(""); //clear the tbody #orderlist
         $.ajax({
             type: 'get',
             url: '<?php echo $link;?>',
             dataType: 'json',
             success: function (result) {
                 table = "";
-                for (var i = page * 10 - 10; i < page * 10 && i < result.length; i++) {
+                for (var i = page * 10 - 10; i < page * 10 && i < result.length; i++) {//page e.g.:1 to 10
                    // console.log(i);
-                    var part = result[i];
+                    var part = result[i]; //select the start showing order
                     var status = "a";
-                    switch (part.stockStatus) {
+                    switch (part.stockStatus) {//change status digit to string
                         case "1":
                             status = "Available";
                             break;
@@ -93,13 +94,13 @@ if (isset($_GET['q'])) {
                 <td class="mdl-data-table__cell--non-numeric">${part.partName}</td>
                 <td class="mdl-data-table__cell--non-numeric">${part.stockQuantity}</td>
                 <td class="mdl-data-table__cell--non-numeric">$${part.stockPrice}</td>
-                <td class="mdl-data-table__cell--non-numeric">${part.email}</td>
                 <td class="mdl-data-table__cell--non-numeric">${status}</td>
+                <td class="mdl-data-table__cell--non-numeric">${part.email}</td>
                 <td class="mdl-data-table__cell--non-numeric">
                     <a href="#${part.partNumber}" onclick="window.open('part.php?id=${part.partNumber}', '_blank', 'location=yes,height=1000,width=700,scrollbars=yes,status=yes')">Edit</a></td>
               </tr>`;
                 }
-                $("#orderlist").append($(table));
+                $("#orderlist").append($(table));//add table html code in tbody #orderlist
             },
             error: function (err) {
                 console.log("error" + err);
@@ -212,8 +213,8 @@ if (isset($_GET['q'])) {
                     <th class="mdl-data-table__cell--non-numeric">Part Name</th>
                     <th class="mdl-data-table__cell--non-numeric">Stock Quantity</th>
                     <th class="mdl-data-table__cell--non-numeric">Stock Price</th>
-                    <th class="mdl-data-table__cell--non-numeric">Email(Who added the part)</th>
                     <th class="mdl-data-table__cell--non-numeric">Stock Status</th>
+                    <th class="mdl-data-table__cell--non-numeric">Email (Who did last editing)</th>
                     <th class="mdl-data-table__cell--non-numeric">Action</th>
                 </tr>
                 </thead>

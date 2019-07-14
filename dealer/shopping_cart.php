@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <title>New Order</title>
     <script src="./node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -48,9 +49,9 @@ $conn = mysqli_connect($hostname, $username, $password, $database);
 $neworder = false;
 $noEffect = "";
 $page = 1;
-$search ="";
-if (!isset($_SESSION["dealerID"])) {
-  header("location:login.php");
+$search = "";
+if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
+  header("location:login.php");//redirect to login page
 } else {
   $sql = "SELECT * FROM dealer WHERE dealerID = '{$_SESSION['dealerID']}'";
   $rs = mysqli_query($conn, $sql); // Get dealer information
@@ -58,72 +59,71 @@ if (!isset($_SESSION["dealerID"])) {
   extract($rc);
 }
 
-if (isset($_GET["page"])) {
+if (isset($_GET["page"])) {//if the dealer click the page button
   $page = $_GET["page"];
   echo "<script>
 $(document).ready(function(){
-    $('#btn_showList').click()
+    $('#btn_showList').click() //the Add Part button is clicked by the system
 });
 </script>";
 }
 
-if (isset($_GET["q"])) {
-  $search=$_GET["q"];
+if (isset($_GET["q"])) {//if the dealer click the search button
+  $search = $_GET["q"];
   echo "<script>
 $(document).ready(function(){
-    $('#btn_showList').click()
+    $('#btn_showList').click()//the Add Part button is clicked by the system
 });
 </script>";
 }
 
 
-if (isset($_GET["neworder"])) {
+if (isset($_GET["neworder"])) {//if the dealer create a new shopping cart (new order)
   if ($_GET["neworder"]) {
-    $_SESSION[$dealerID]["shopping_cart"] = true;
-    header("location:shopping_cart.php");
+    $_SESSION[$dealerID]["shopping_cart"] = true; //give a shopping cart to the dealer
+    header("location:shopping_cart.php"); //redirect to the shopping_cart page
   }
 }
-if (isset($_SESSION[$dealerID]["shopping_cart"])) {
-  if ($_SESSION[$dealerID]["shopping_cart"] == true) {
+if (isset($_SESSION[$dealerID]["shopping_cart"])) {//if(the dealer has a shopping cart
+  if ($_SESSION[$dealerID]["shopping_cart"] == true) {//if(the dealer has a shopping cart
     echo "<script>showShoppingCart();</script>"; //set the max height of shopping_cart div and hide the New button
   }
 }
-if (isset($_GET["add"])) { //add part
+if (isset($_GET["add"])) { //if the dealer add  parts
   $partList = explode(",", $_GET["add"]); //convert string to array by ','
   foreach ($partList as $key => $value) {
-    $_SESSION["shopping_cart"][$value]["partNumber"] = "$value";
-    header("location:shopping_cart.php");
+    $_SESSION["shopping_cart"][$value]["partNumber"] = "$value";//add part to the shopping cart
+    header("location:shopping_cart.php");//redirect to the shopping_cart page
   }
 }
 if (isset($_GET["delete"])) {//delete part
   delete($_GET["delete"]);
-  header("location:shopping_cart.php");
+  header("location:shopping_cart.php");//redirect to the shopping_cart page
 }
 
-if (isset($_GET["address"])) {
-  $skip = 0;
-  $delete = "";
+if (isset($_GET["address"])) {// place order
+  $skip = 0; //set for skip the part which is not clicked
+  $delete = ""; //used for delete the part from the shopping cart
   $deliveryAddress = $_GET["address"];
-  $today = date("Y-m-d");
+  $today = date("Y-m-d"); //today
   $sql = "INSERT INTO orders VALUES(null,'$dealerID','$today','$deliveryAddress',1)";
   mysqli_query($conn, $sql); //Create a new order
   foreach ($_GET as $part => $quantity) {
     if ($skip++ == 0) continue; //skip the first element (delivery address)
     // echo "$part = $quantity<br>";
     $delete .= $part . ",";
-    $_SESSION["placeOrder"][$part] = "$quantity";
-    $sql = "SELECT * FROM orders WHERE dealerID = '$dealerID' ORDER BY orderID DESC";
+    $_SESSION["placeOrder"][$part] = "$quantity";//set the part and the order quantity
+    $sql = "SELECT * FROM orders WHERE dealerID = '$dealerID' ORDER BY orderID DESC"; //get the latest order id
     $rs = mysqli_query($conn, $sql);
     $rc = mysqli_fetch_assoc($rs);
     extract($rc);
   }
+  //insert the part and quantity to orderpart
   foreach ($_SESSION["placeOrder"] as $part => $quantity) {
     $sql = "SELECT * FROM part WHERE partNumber = $part";
     $rs = mysqli_query($conn, $sql);
     $rc = mysqli_fetch_assoc($rs);
     extract($rc);
-    $sql = "UPDATE part set stockQuantity = stockQuantity-$quantity WHERE partNumber = $part";
-    mysqli_query($conn, $sql);
     $sql = "INSERT INTO orderpart VALUES($orderID, $part, $quantity,$stockPrice)";
     mysqli_query($conn, $sql);
   }
@@ -140,7 +140,7 @@ function delete($delete)
   $partList = explode(",", $delete); //convert string to array by ','
   foreach ($partList as $key => $value) {
 //      echo "$value";
-    unset($_SESSION["shopping_cart"][$value]);
+    unset($_SESSION["shopping_cart"][$value]);//delete the part from the shopping cart
   }
 }
 
@@ -151,12 +151,12 @@ function delete($delete)
     $(document).ready(function () {
         $('#btn_buy').on('click', function () {
             var $get = "?address=" + $("#address").val();
-            var shopping_partlist = document.getElementById('partList').children; //tbody
+            var shopping_partlist = document.getElementById('partList').children; //tbody>tr
             for (i = 0; i < shopping_partlist.length; i++) {
-                if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr>td>label>input first column (checkbox)
-                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td(id)
-                    var quantity = shopping_partlist[i].children[3].children[0].value;//tbody>tr>td>input(quantity)
-                    $get += `&${partNumber}=${quantity}`;
+                if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr[i]
+                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr[i]>td(id)
+                    var quantity = shopping_partlist[i].children[3].children[0].value;//tbody>tr[i]>td>input(quantity)
+                    $get += `&${partNumber}=${quantity}`;//set part number and the quantity that the dealer wants to place
                 }
             }
             //console.log($get);
@@ -165,35 +165,35 @@ function delete($delete)
 
         $('#btn_delete').on('click', function () {
             var $get = "?delete=";
-            var shopping_partlist = document.getElementById('partList').children; //tbody
+            var shopping_partlist = document.getElementById('partList').children; //tbody>tr
             for (i = 0; i < shopping_partlist.length; i++) {
-                if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr>td>label>input first column (checkbox)
-                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td
-                    $get += `${partNumber},`;
+                if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr[i]
+                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr[i]>td
+                    $get += `${partNumber},`;//add part number for delete from the shopping cart
                 }
             }
-            $get = $get.substring(0, $get.length - 1); //remove last ,
+            $get = $get.substring(0, $get.length - 1); //remove last ','
             //console.log($get);
-            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
+            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //delete the part from the shopping cart
         });
 
 
         $('#btn_add').on('click', function () {
             var $get = "?add=";
-            var shopping_partlist = document.getElementById('selectpart').children; //tbody
+            var shopping_partlist = document.getElementById('selectpart').children; //tbody>tr
             for (i = 0; i < shopping_partlist.length; i++) {
-                if (shopping_partlist[i].children[0].children[0].children[0].checked) {//tbody>tr>td>label>input first column (checkbox)
-                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr>td
-                    $get += `${partNumber},`;
+                if (shopping_partlist[i].children[0].children[0].children[0].checked) {//tbody>tr[i]>td>label>input first column (checkbox)
+                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr[i]>td
+                    $get += `${partNumber},`;//add partnumber which the dealer wants to add to the shopping cart
                 }
             }
-            $get = $get.substring(0, $get.length - 1); //remove last ,
+            $get = $get.substring(0, $get.length - 1); //remove last ','
             window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
         });
 
-        $('#btn_search').on('click', function(){
-            var search = $('#search').val();
-            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>?q=${search}`); //add part to the shopping cart
+        $('#btn_search').on('click', function () {
+            var search = $('#search').val(); //set the keyword
+            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>?q=${search}`); //search part
         })
     });
 </script>
@@ -282,11 +282,12 @@ function delete($delete)
         <div class="form_lar">
             <h2 class="mdc-typography--headline5">Order</h2>
           <?php if (isset($_GET["ok"])) {
-            echo "<script>window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes');
- window.location.assign('history.php');
+            echo "<script>
+window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes');
+ setTimeout(function (){window.location.assign('history.php')},100);
 </script>";
-              ?>
-          <?php }?>
+            ?>
+          <?php } ?>
 
             <button id="btn_new" type="button"
                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
@@ -320,10 +321,6 @@ function delete($delete)
 
                         </div>
                         <ul type="none" class="mdc-typography--headline6">
-                            <!--                            <li>-->
-                            <!--            order id-->
-                            <!--                                Order ID: <span name="orderID">php-orderId</span>-->
-                            <!--                            </li>-->
                             <li>
                                 <!--    Delivery address-->
                                 Delivery Address:
@@ -371,8 +368,8 @@ function delete($delete)
 
                                 <?php
 
-                                if (isset($_SESSION["shopping_cart"])) { //if the dealer has added a part to the shopping cart
-                                  foreach ($_SESSION["shopping_cart"] as $key => $order) { //$order is the part that in the shopping cart
+                                if (isset($_SESSION["shopping_cart"])) { //if the dealer has clicked the New button
+                                  foreach ($_SESSION["shopping_cart"] as $key => $order) { //$key=partNumber, $order is the part that in the shopping cart
                                     $sql = "SELECT * FROM part WHERE partNumber = {$order['partNumber']}"; //get the information of the part
                                     $rs = mysqli_query($conn, $sql);
                                     $rc = mysqli_fetch_assoc($rs);
@@ -382,11 +379,11 @@ function delete($delete)
          <td class="mdl-data-table__cell--non-numeric td_partNumber">$partNumber</td>
       <td class="mdl-data-table__cell--non-numeric td_partNumber">$partName</td>
       <td>
-        <input type="number" id="qty{$order['partNumber']}" class="rightAlign" value="1" max="$stockQuantity" min="1"                     onchange="countAmount('#qty{$order['partNumber']}','#price{$order['partNumber']}','#total{$order['partNumber']}');" oninput="
-        if($('#qty{$order['partNumber']}').val()>$stockQuantity){
-            $('#qty{$order['partNumber']}').val($stockQuantity);
-        }else if($('#qty{$order['partNumber']}').val()<1){
-            $('#qty{$order['partNumber']}').val(1);
+        <input type="number" id="qty{$order['partNumber']}" class="rightAlign" value="1" max="$stockQuantity" min="1"                     onchange="countAmount('#qty{$order['partNumber']}','#price{$order['partNumber']}','#total{$order['partNumber']}');" oninput="//set oninput event javascript
+        if($('#qty{$order['partNumber']}').val()>$stockQuantity){ //if the order quantity is greater than stock quantity
+            $('#qty{$order['partNumber']}').val($stockQuantity); //set the order quantity to stock quantity
+        }else if($('#qty{$order['partNumber']}').val()<1){//if the order quantity <1
+            $('#qty{$order['partNumber']}').val(1);//set the order quantity to 1
         }"
          required>
       </td>
@@ -448,35 +445,21 @@ HTML_CODE;
                         <tbody id="selectpart">
 
                         <?php
-                        if(strlen($search)>0){
-                          $sql = "SELECT * FROM part WHERE partName LIKE '%$search%'"; //get the information of all part
-                        }else{
-                          $sql = "SELECT * FROM part"; //get the information of all part
+                        if (strlen($search) > 0) {
+                          $sql = "SELECT * FROM part WHERE partName LIKE '%$search%' AND stockStatus = 1 AND stockQuantity >0"; //get the information of all part
+                        } else {
+                          $sql = "SELECT * FROM part WHERE stockStatus = 1 AND stockQuantity >0"; //get the information of all part
                         }
                         $rs = mysqli_query($conn, $sql);
-                        $row = mysqli_fetch_all($rs);
-                        //                        echo "<pre>";
-                        //                        print_r($row[0]);
-                        //                        echo "</pre>";
-                        $start = $page * 5 - 5;
+                        $row = mysqli_fetch_all($rs); //get all the row and store to $row
+                        $start = $page * 5 - 5; //every page shows 5 part
                         $end = $start + 5;
-//                        $skip = $start;
-//                        while ($row[$skip][5] == 2) {
-//                          echo "$skip ,{$row[$skip][5]},".count($row)."<br>";
-//                          $skip++;
-//                          $start++;
-//                          $end++;
-//                        }
                         for ($i = $start; $i < $end && $i < count($row); $i++) {
                           $partNumber = $row[$i][0];
                           $partName = $row[$i][2];
                           $stockQuantity = $row[$i][3];
                           $stockPrice = $row[$i][4];
                           $stockStatus = $row[$i][5];
-                          if ($stockStatus == 2 && $stockQuantity==0) {
-                            $end++;
-                            continue;
-                          }//2 = "Unavailable": The parts are unavailable (e.g. parts have defects). Skip the part.
                           $partList = <<<HTML_CODE
 <tr>
     <td class="mdl-data-table__cell--non-numeric text_left">$partNumber</td>
@@ -493,14 +476,14 @@ HTML_CODE;
                     <nav aria-label="Page navigation" style="margin-top: 24px">
                         <ul class="pagination justify-content-center">
                           <?php
-                          $addition = "";
-                          if(strlen($search)>0){
-                              $addition = "q=$search&";
+                          $keyword = "";
+                          if (strlen($search) > 0) {
+                            $keyword = "q=$search&";
                           }
                           $totalPages = mysqli_num_rows($rs) / 5;
                           for ($i = 1; $i < $totalPages + 1; $i++) {
                             $pageHtml = <<<HTML_CODE
- <li class="page-item"><a class="page-link" href="{$_SERVER['PHP_SELF']}?{$addition}page=$i">$i</a></li>
+ <li class="page-item"><a class="page-link" href="{$_SERVER['PHP_SELF']}?{$keyword}page=$i">$i</a></li>
 HTML_CODE;
                             echo $pageHtml;
                           }

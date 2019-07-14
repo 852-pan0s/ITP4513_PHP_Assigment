@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Login</title>
     <script src="./node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -40,10 +41,10 @@ $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
 session_start();
 $error = false;
-if (isset($_GET["logout"])) {
+if (isset($_GET["logout"])) {//if the dealer wants to log out
   if ($_GET["logout"]) {
     session_destroy();
-    header("location:login.php");
+    header("location:login.php");//redirect to login page
   }
 } else
   if (!isset($_SESSION["dealerID"])) { //if the dealer does not log in before
@@ -53,16 +54,15 @@ if (isset($_GET["logout"])) {
       $sql = "SELECT * FROM dealer WHERE dealerID = '$dealerID' AND password = '$password'";
       $rs = mysqli_query($conn, $sql);
       if (mysqli_num_rows($rs) > 0) {
-        session_start();
         $_SESSION["dealerID"] = $dealerID;
-        header("location:shopping_cart.php");
+        header("location:shopping_cart.php");//redirect to shopping_cart page
       } else {
         $error = true;
       }
       mysqli_free_result($rs);
     }
   } else {
-    header("location:shopping_cart.php");
+    header("location:shopping_cart.php");//redirect to shopping_cart page
   }
 ?>
 

@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <title>Order Management</title>
     <script src="../dealer/node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -47,8 +48,8 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["email"])) {
-  header("location:login.php");
+if (!isset($_SESSION["email"])) { //if the admin does not log in before
+  header("location:login.php"); //redirect to login page
 } else {
   $sql = "SELECT * FROM administrator WHERE email = '{$_SESSION['email']}'";
   $rs = mysqli_query($conn, $sql); // Get dealer information
@@ -56,31 +57,30 @@ if (!isset($_SESSION["email"])) {
   extract($rc);
 }
 
-$link = "load_order.php";
-if (isset($_GET['q'])) {
+$link = "load_order.php"; //for load order
+if (isset($_GET['q'])) { //if the search input has keyword
   if (strlen($_GET['q'] > 0)) {
-    $link .= "?q={$_GET['q']}";
+    $link .= "?q={$_GET['q']}"; //add keyword to q
   }
 }
 ?>
 
 <script>
-    page = 1;
-
+    page = 1; //page navigation
     function changePage(cPage) {
-        page = cPage;
-        $("#orderlist").html("");
+        page = cPage; // cPage = change page
+        $("#orderlist").html(""); //clear the tbody #orderlist
         $.ajax({
             type: 'get',
             url: '<?php echo $link;?>',
             dataType: 'json',
             success: function (result) {
                 table = "";
-                for (var i = page * 10 - 10; i < page * 10 && i < result.length; i++) {
+                for (var i = page * 10 - 10; i < page * 10 && i < result.length; i++) { //page e.g.:1 to 10
                     // console.log(i);
-                    var order = result[i];
+                    var order = result[i]; //select the start showing order
                     var status = "a";
-                    switch (order.status) {
+                    switch (order.status) { //change status digit to string
                         case "1":
                             status = "In processing";
                             break;
@@ -111,7 +111,7 @@ if (isset($_GET['q'])) {
                 </td>
               </tr>`;
                 }
-                $("#orderlist").append($(table));
+                $("#orderlist").append($(table)); //add table html code in tbody #orderlist
             },
             error: function (err) {
                 console.log("error" + err);
@@ -134,7 +134,7 @@ if (isset($_GET['q'])) {
                 var totalPages = Math.ceil(result.length / 10.0); //every page shows 10 parts only. ceil for carry digit
                 var pageHTML = ""; //used for page HTML page
                 for (var i = 1; i <= totalPages; i++) {
-                    pageHTML += `<li class="page-item"><a class="page-link" href="#page${i}" onclick="changePage(${i})">${i}</a></li>`;
+                    pageHTML += `<li class="page-item"><a class="page-link" href="#page${i}" onclick="changePage(${i})">${i}</a></li>`;//set page button
                 }
                 $("#pageNo").append($(pageHTML)); //add page number
                 changePage(1);

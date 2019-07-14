@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Register</title>
     <script src="./node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -40,12 +41,15 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (isset($_POST["dealerID"])) {
+if (isset($_SESSION["dealerID"])) { //if the dealer does not log in before
+  header("location:shopping_cart.php");//redirect to shopping_cart page
+}
+if (isset($_POST["dealerID"])) {//if the dealer press the register button
   $get = true;
   extract($_POST);
   $sql = "INSERT INTO dealer VALUES('$dealerID','$password','$name','$phoneNumber','$address')";
   $rs = mysqli_query($conn, $sql);
-  if (mysqli_affected_rows($conn) < 1) {
+  if (mysqli_affected_rows($conn) < 1) {//if register fail
     $error = 1;
   } else {
     $error = 0;

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>New Part</title>
     <script src="../dealer/node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -41,8 +42,8 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["email"])) {
-  header("location:login.php");
+if (!isset($_SESSION["email"])) {//if the admin does not log in before
+  header("location:login.php");//redirect to login page
 } else {
   $sql = "SELECT * FROM administrator WHERE email = '{$_SESSION['email']}'";
   $rs = mysqli_query($conn, $sql); // Get dealer information
@@ -55,10 +56,10 @@ if (!isset($_SESSION["email"])) {
   $status = $stockStatus == 1 ? "Available" : "Unavailable";
 }
 
-$oName = ""; // old part name
-$oQty = "";
-$oPrice ="";
-$oStatus = "";
+$oName = ""; // part name which input before
+$oQty = "";// stock quantity which input before
+$oPrice = "";// stock price which input before
+$oStatus = "";// stock status which input before
 
 ?>
 
@@ -99,12 +100,12 @@ $oStatus = "";
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                       <div class="success-msg">New part added Successfully!</div>
                   </div>
-              <?php }else if (isset($_GET["fail"])) {
-                $oName = $_GET['partName'];
-                $oQty = $_GET['stockQuantity'];
-                $oPrice = $_GET['stockPrice'];
-                $oStatus = $_GET['stockStatus']==1?"Available":"Unavailable";
-                  ?>
+              <?php } else if (isset($_GET["fail"])) {
+                $oName = $_GET['partName']; //set it back to the user
+                $oQty = $_GET['stockQuantity']; //set it back to the user
+                $oPrice = $_GET['stockPrice']; //set it back to the user
+                $oStatus = $_GET['stockStatus'] == 1 ? "Available" : "Unavailable"; //set it back to the user
+                ?>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                       <div class="error-msg">New part added Fail!<br>Please try again.</div>
                   </div>
@@ -122,7 +123,8 @@ $oStatus = "";
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"
                              style="display: block;">
                             <input class="mdl-textfield__input" name="partName" type="text" id="partName"
-                                   value="<?php echo $oName?>" placeholder="e.g.:<?php echo $partName; ?>" pattern="[a-zA-Z\d_ ()&,.\-/]{3,100}"
+                                   value="<?php echo $oName ?>" placeholder="e.g.:<?php echo $partName; ?>"
+                                   pattern="[a-zA-Z\d_ ()&,.\-/]{3,100}"
                                    maxlength="100" required>
                             <label class="mdl-textfield__label" for="partName">Part Name</label>
                         </div>
@@ -131,7 +133,8 @@ $oStatus = "";
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"
                              style="display: block;">
                             <input class="mdl-textfield__input" name="stockQuantity" type="number" id="stockQuantity"
-                                   value="<?php echo $oQty?>" placeholder="e.g.:<?php echo $stockQuantity; ?>" max="99999999" min="0" required>
+                                   value="<?php echo $oQty ?>" placeholder="e.g.:<?php echo $stockQuantity; ?>"
+                                   max="99999999" min="0" required>
                             <label class="mdl-textfield__label" for="stockQuantity">Stock Quantity</label>
                         </div>
                     </li>
@@ -139,13 +142,14 @@ $oStatus = "";
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"
                              style="display: block;">
                             <input class="mdl-textfield__input" name="stockPrice" type="number" id="stockPrice"
-                                   value="<?php echo $oPrice?>" placeholder="e.g.:<?php echo $stockPrice; ?>" max="9999999" min="0" required>
+                                   value="<?php echo $oPrice ?>" placeholder="e.g.:<?php echo $stockPrice; ?>"
+                                   max="9999999" min="0" required>
                             <label class="mdl-textfield__label" for="stockPrice">Stock Price</label>
                         </div>
                     </li>
                     <li>
                         <div class="mdc-select demo-width-class">
-                            <input type="hidden" name="stockStatus" value="<?php echo $oStatus?>" id="status">
+                            <input type="hidden" name="stockStatus" value="<?php echo $oStatus ?>" id="status">
                             <i class="mdc-select__dropdown-icon"></i>
                             <div class="mdc-select__selected-text"></div>
                             <div class="mdc-select__menu mdc-menu mdc-menu-surface status_list_width">

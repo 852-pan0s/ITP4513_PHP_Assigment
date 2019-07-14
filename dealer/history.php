@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Order History</title>
     <script src="./node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -49,25 +50,22 @@ $username = "root";
 $password = "";
 $search = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["dealerID"])) {
-  header("location:login.php");
+if (!isset($_SESSION["dealerID"])) { //if the dealer does not log in before
+  header("location:login.php");//redirect to login page
 }
-if (isset($_GET['cancel_order'])) {
-  $id = $_GET['cancel_order'];
+if (isset($_GET['cancel_order'])) { //if the dealer wants to cancel the order
+  $id = $_GET['cancel_order']; //get order id which the dealer wants to cancel
   $cStatus = $_GET['status'];
   $sql = "SELECT * FROM orders WHERE orderID = $id";
   $rs = mysqli_query($conn, $sql);
   $rc = mysqli_fetch_array($rs);
-  if (($rc["status"] == "1" && $cStatus == "4")) { //1 = in processing , cStatus=change status, 1 can cancel
+  if (($rc["status"] == "1" && $cStatus == "4")) { //1 = in processing , cStatus=change status, only in processing order can be canceled
     $sql = "UPDATE orders SET status = 4 WHERE orderID = {$_GET['cancel_order']}";
     mysqli_query($conn,$sql);
-    header("location:{$_SERVER['PHP_SELF']}?ok");
+    header("location:{$_SERVER['PHP_SELF']}?ok");//redirect to login page and show the ok message
   } else {
-    header("location:{$_SERVER['PHP_SELF']}?fail");
+    header("location:{$_SERVER['PHP_SELF']}?fail");//redirect to login page and show the fail message
   }
-
-  // mysqli_query($conn,$sql);
-  // header("location:{$_SERVER['PHP_SELF']}");
 }
 if (isset($_GET['confirm_order'])) {
   $id = $_GET['confirm_order'];
@@ -75,15 +73,15 @@ if (isset($_GET['confirm_order'])) {
   $sql = "SELECT * FROM orders WHERE orderID = $id";
   $rs = mysqli_query($conn, $sql);
   $rc = mysqli_fetch_array($rs);
-  if (($rc["status"] == "2" && $cStatus == "3")) {//2 can confirm the order
+  if (($rc["status"] == "2" && $cStatus == "3")) {//only delivery order can change to completed order
     $sql = "UPDATE orders SET status = 3 WHERE orderID = $id";
     mysqli_query($conn,$sql);
-    header("location:{$_SERVER['PHP_SELF']}?ok");
+    header("location:{$_SERVER['PHP_SELF']}?ok");//redirect to login page and show the ok message
   } else {
-    header("location:{$_SERVER['PHP_SELF']}?fail");
+    header("location:{$_SERVER['PHP_SELF']}?fail");//redirect to login page and show the fail message
   }
 }
-if (isset($_GET["q"])) {
+if (isset($_GET["q"])) { //if keyword is provides
   $search = $_GET["q"];
   $sql = "SELECT * FROM orders WHERE dealerID = '{$_SESSION['dealerID']}' AND orderID LIKE '%$search%' ORDER BY orderID DESC";
   //echo $sql;
@@ -178,16 +176,16 @@ $rs = mysqli_query($conn, $sql);
                       extract($rc);
                       $strStatus = "";
                       $button = "";
-                      $cancel = "{$_SERVER['PHP_SELF']}?cancel_order=$orderID&status=4";
-                      $confirm = "{$_SERVER['PHP_SELF']}?confirm_order=$orderID&status=3";
+                      $cancel = "{$_SERVER['PHP_SELF']}?cancel_order=$orderID&status=4";//set cancel link
+                      $confirm = "{$_SERVER['PHP_SELF']}?confirm_order=$orderID&status=3";//set confirm link
                       switch ($status) {
                         case 1:
                           $strStatus = "In processing";
-                          $button = "<button type='button' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button' onclick='window.location.assign(\"$cancel\")'>Cancel</button>";
+                          $button = "<button type='button' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button' onclick='window.location.assign(\"$cancel\")'>Cancel</button>";//only In processing order can be canceled
                           break;
                         case 2:
                           $strStatus = "Delivery";
-                          $button = "<button type='button' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button' onclick='window.location.assign(\"$confirm\")'>Confirm</button>";
+                          $button = "<button type='button' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button action_button' onclick='window.location.assign(\"$confirm\")'>Confirm</button>";//only Delivery order can be confirmed
                           break;
                         case 3:
                           $strStatus = "Completed";
@@ -203,8 +201,7 @@ $rs = mysqli_query($conn, $sql);
                         <td class="mdl-data-table__cell--non-numeric center_border">$orderDate</td>
                         <td class="mdl-data-table__cell--non-numeric left_border">$deliveryAddress</td>
                         <td class="mdl-data-table__cell--non-numeric left_border">$strStatus</td>
-                        <td><a
-                                        onclick="window.open('detail.php?orderID=$orderID', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">View</a></span>
+                        <td><a href="#" onclick="window.open('detail.php?orderID=$orderID', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes')">View</a></span>
                         </td>
                         <td>
                             $button

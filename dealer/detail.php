@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Order Detail</title>
     <script src="./node_modules/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -42,8 +43,8 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["dealerID"])|| (!isset($_GET['orderID']))) {
-  header("location:login.php");
+if (!isset($_SESSION["dealerID"])|| (!isset($_GET['orderID']))) {//check if the user logged in the system or no order id is provided
+  header("location:login.php");//redirect to login page
 } else {
   $sql = "SELECT o.orderID, o.dealerID, o.orderDate, o.deliveryAddress, o.status, d.name 
 FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = '{$_SESSION['dealerID']}'";
@@ -54,7 +55,7 @@ FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = 
   $step1 = "";
   $step2 = "";
   $step3 = "";
-  switch ($status) {
+  switch ($status) { //set the step by status
     case 1:
       $strStatus = "In processing";
       $step1 = "active step";
@@ -169,7 +170,7 @@ $totalAmount = 0;
                         <td class="mdl-data-table__cell--non-numeric">$$totalPrice</span></td>
                     </tr>
 HTML_CODE;
-                      echo $orderline;
+                      echo $orderline; //show the table row
                     }
                     ?>
                     </tbody>
