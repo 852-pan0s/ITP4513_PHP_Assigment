@@ -47,7 +47,7 @@ if (!isset($_SESSION["dealerID"])|| (!isset($_GET['orderID']))) {//check if the 
   header("location:login.php");//redirect to login page
 } else {
   $sql = "SELECT o.orderID, o.dealerID, o.orderDate, o.deliveryAddress, o.status, d.name 
-FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = '{$_SESSION['dealerID']}'";
+FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = d.dealerID";
   $rs = mysqli_query($conn, $sql); // Get dealer information
   if(mysqli_num_rows($rs)<1)  header("location:history.php");
   $rc = mysqli_fetch_assoc($rs); // Take the first row

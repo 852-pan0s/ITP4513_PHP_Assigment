@@ -115,7 +115,7 @@ if (isset($_GET["logout"])) {//if the dealer wants to log out
                 account_circle
             </i>
 
-            <form action="<?php $_SERVER["PHP_SELF"] ?>" method="post">
+            <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="post">
 
               <?php if ($error) { ?>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">

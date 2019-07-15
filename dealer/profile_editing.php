@@ -93,6 +93,7 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
                 } else {
                     $("#confirm_password_div").css("maxHeight", "0");//for transition effect
                     $("#confirm_password_div input, #confirm_password_div label").css("display", "none");//hide the div
+                    $("#confirm_password_div").removeClass("is-invalid"); //set the input box to red
                     $(this).removeAttr("pattern");//remove pattern html attribute
                 }
             });
@@ -111,7 +112,7 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
                 }
             });
             $("#btn_save").on("click", function () {
-                if (!($("#password").val().length > 0)) {
+                if ($("div").hasClass("is-invalid")) {//if some input is invalid
                     return;
                 }
                 var new_password = $("#confirm_password").val(); //get new password

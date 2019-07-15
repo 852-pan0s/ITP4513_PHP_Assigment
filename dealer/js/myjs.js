@@ -79,6 +79,7 @@ function isCheckedDefault(defaultAdd) {
     if (use_default_addr.checked) {
         address.value = defaultAdd;
         address.setAttribute('readonly', '');
+        $('#address').parent().removeClass("is-invalid")//remove is-invalid adress
     } else {
         address.removeAttribute('readonly');
     }

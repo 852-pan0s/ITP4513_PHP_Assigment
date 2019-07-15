@@ -59,7 +59,7 @@ if (!isset($_SESSION["email"])) {//if the admin does not log in before
 $oName = ""; // part name which input before
 $oQty = "";// stock quantity which input before
 $oPrice = "";// stock price which input before
-$oStatus = "";// stock status which input before
+$oStatus = "Available";// stock status which input before
 
 ?>
 

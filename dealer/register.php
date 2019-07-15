@@ -103,7 +103,7 @@ if (isset($_POST["dealerID"])) {//if the dealer press the register button
           <?php if ($error == 0) { ?>
               <h3>Sign up Successfully!</h3>
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <?php echo "<div class='success-msg'>Your ID <a herf='#'>$dealerID</a> has been registered successfully!</div><br>" ?>
+                <?php echo "<div class='success-msg'>Your ID <a href='login.php'>$dealerID</a> has been registered successfully!</div><br>" ?>
                   Automatically redirect to login page in <span id="timer"></span> second(s) later.
                 <?php
                 echo "<script> 
@@ -127,7 +127,7 @@ if (isset($_POST["dealerID"])) {//if the dealer press the register button
 
             <?php if ($error == 1) { ?>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                      <div class="error-msg"><?php echo "*$dealerID has been used."; ?></div>
+                      <div class="error-msg"><?php echo "*Dealer's ID: $dealerID has been used."; ?></div>
                   </div>
             <?php } ?>
               <form action="<?php $_SERVER["PHP_SELF"] ?>" method="post">
@@ -151,7 +151,7 @@ if (isset($_POST["dealerID"])) {//if the dealer press the register button
                   <!--Dealer name input box-->
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
                       <input class="mdl-textfield__input" name="name" type="text" id="dealerName"
-                             title=">=3 letters or spaces" pattern="[a-zA-Z\d]{3,50}" maxlength="50"
+                             title=">=3 letters or spaces" pattern="[a-zA-Z\d,. ']{3,50}" maxlength="50"
                              placeholder="e.g.:John" value="<?php if ($get) echo $name; ?>" required>
                       <label class="mdl-textfield__label" for="dealerName">Dealer's Name</label>
                   </div>
@@ -167,7 +167,7 @@ if (isset($_POST["dealerID"])) {//if the dealer press the register button
                   <!--    Address -->
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
                       <input class="mdl-textfield__input" name="address" type="text" id="address"
-                             title=">=5 letters or commas or full stops or digits " pattern="[a-zA-Z\d., ]{5,255}"
+                             title=">=5 letters or commas or full stops or digits " pattern="[a-zA-Z\d., ?';\[\]/\-_=]{5,255}"
                              maxlength="255" placeholder="e.g.:Flat 14/A, O House, Hello Road.  14/A"
                              value="<?php if ($get) echo $address; ?>" required>
                       <label class="mdl-textfield__label" for="address">Address</label>
