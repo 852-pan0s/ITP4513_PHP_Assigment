@@ -50,23 +50,24 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
   extract($rc);
   if (isset($_GET["error"])) {//if error occurs
     $error = $_GET["error"];
-  }
-  if (isset($_GET["saved"])) {//if saved successfully
-    $saved = $_GET["saved"];
-  }
-  if (isset($_GET["password"])) {//if the dealer is going to change the password
-    extract($_GET);
-    $sql = "UPDATE dealer SET password = '$password', name = '$name', phoneNumber = '$phoneNumber', address = '$address' WHERE dealerID = '$dealerID'";
-    $saved = true;
-    //echo $sql;
-    mysqli_query($conn, $sql);
-    header("location:{$_SERVER['PHP_SELF']}?saved=true");//redirect self page and show saved message
-  } else if (isset($_GET["name"])) {
-    extract($_GET);
-    $sql = "UPDATE dealer SET name = '$name', phoneNumber = '$phoneNumber', address = '$address' WHERE dealerID = '$dealerID'";
-    //echo $sql;
-    mysqli_query($conn, $sql);
-    header("location:{$_SERVER['PHP_SELF']}?saved=true");//redirect self page and show saved message
+  } else {
+    if (isset($_GET["saved"])) {//if saved successfully
+      $saved = $_GET["saved"];
+    }
+    if (isset($_GET["password"])) {//if the dealer is going to change the password
+      extract($_GET);
+      $sql = "UPDATE dealer SET password = '$password', name = '$name', phoneNumber = '$phoneNumber', address = '$address' WHERE dealerID = '$dealerID'";
+      $saved = true;
+      //echo $sql;
+      mysqli_query($conn, $sql);
+      header("location:{$_SERVER['PHP_SELF']}?saved=true");//redirect self page and show saved message
+    } else if (isset($_GET["name"])) {
+      extract($_GET);
+      $sql = "UPDATE dealer SET name = '$name', phoneNumber = '$phoneNumber', address = '$address' WHERE dealerID = '$dealerID'";
+      //echo $sql;
+      mysqli_query($conn, $sql);
+      header("location:{$_SERVER['PHP_SELF']}?saved=true");//redirect self page and show saved message
+    }
   }
 
   ?>
@@ -104,16 +105,20 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
                 } else {
                     $("#confirm_password").attr("pattern", "0{99}"); //set pattern to show the title message
                     $("#confirm_password").attr("required", "required");//confirm password must be entered
-                    $("#confirm_password").attr("title", "Two passwords must be same.");;//when the new password != confirm password, it will display
+                    $("#confirm_password").attr("title", "Two passwords must be same.");
+                    ;//when the new password != confirm password, it will display
                     $("#confirm_password_div").addClass("is-invalid"); //set the input box to red
                 }
             });
             $("#btn_save").on("click", function () {
+                if (!($("#password").val().length > 0)) {
+                    return;
+                }
+                var new_password = $("#confirm_password").val(); //get new password
+                var name = $("#dealerName").val(); //get name
+                var phoneNumber = $("#phoneNo").val();//get phoneNo
+                var address = $("#address").val();//get address
                 if ($("#password").val() == <?php echo $password?>) {
-                    var new_password = $("#confirm_password").val(); //get new password
-                    var name = $("#dealerName").val(); //get name
-                    var phoneNumber = $("#phoneNo").val();//get phoneNo
-                    var address = $("#address").val();//get address
                     if ($("#new_password").val().length > 0) { //if new password is entered
                         // console.log("OK");
                         if ($("#new_password").val() === $("#confirm_password").val()) {
@@ -123,7 +128,7 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
                         window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?name=${name}&phoneNumber=${phoneNumber}&address=${address}`); //update all information except password
                     }
                 } else {
-                    window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?error=1`);//update fail, password is incorrect
+                    window.location.assign(`<?php $_SERVER["PHP_SELF"]?>?error=1&name=${name}&phoneNumber=${phoneNumber}&address=${address}`);//update fail, password is incorrect
                 }
             })
         });
@@ -177,7 +182,8 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
                 <i class="material-icons ac_icon">
                     account_circle
                 </i>
-              <?php if ($error == 1) { ?>
+              <?php if ($error == 1) {
+                  extract($_GET)?>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                       <div class="error-msg"><?php echo "*Password is incorrect."; ?></div>
                   </div>
@@ -199,7 +205,7 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
                     <!--        password-->
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
                         <input class="mdl-textfield__input" name="password" type="password" id="password"
-                               title=">=6 letters or digits" pattern="[a-zA-Z\d]{6,50}" maxlength="50"
+                               title="Your current password." maxlength="50"
                                required="required">
                         <label class="mdl-textfield__label" for="password">Password</label>
                     </div>
@@ -221,7 +227,7 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
                     <!--Dealer name input box-->
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
                         <input class="mdl-textfield__input" name="name" type="text" id="dealerName"
-                               title=">=3 letters or spaces" pattern="[a-zA-Z ]{3,50}" maxlength="50"
+                               title=">=3 letters or spaces" pattern="[a-zA-Z ,.'/\d?]{3,50}" maxlength="50"
                                value="<?php echo $name ?>" required>
                         <label class="mdl-textfield__label" for="dealerName">Dealer’s Name</label>
                     </div>
@@ -236,7 +242,7 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
                     <!--    Address -->
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: block;">
                         <input class="mdl-textfield__input" name="address" type="text" id="address"
-                               title=">=5 letters or commas or full stops or digits " pattern="[a-zA-Z\d., ]{5,255}"
+                               title=">=5 letters or commas or full stops or digits " pattern="[a-zA-Z\d., ?';\[\]/\-_=]{5,255}"
                                maxlength="255" value="<?php echo $address ?>">
                         <label class="mdl-textfield__label" for="address">Address</label>
                     </div>

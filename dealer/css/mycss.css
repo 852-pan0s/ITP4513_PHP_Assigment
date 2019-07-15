@@ -195,6 +195,10 @@ ul {
     width: 99%;
 }
 
+.hide{
+    display:none;
+}
+
 .h-full {
     height: 99%;
 }

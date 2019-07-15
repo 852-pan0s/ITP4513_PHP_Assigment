@@ -169,19 +169,36 @@ function delete($delete)
 
 
 <script>
+    function checkAddress() {
+        if ($('#address').parent().hasClass("is-invalid")) {
+            $('#invalidAddress').removeClass('hide');
+            return false;
+
+        } else{
+            $('#invalidAddress').addClass('hide');
+            return true;
+        }
+    }
+
     $(document).ready(function () {
         $('#btn_buy').on('click', function () {
-            var $get = "?address=" + $("#address").val();
-            var shopping_partlist = document.getElementById('partList').children; //tbody>tr
-            for (i = 0; i < shopping_partlist.length; i++) {
-                if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr[i]
-                    var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr[i]>td(id)
-                    var quantity = shopping_partlist[i].children[3].children[0].value;//tbody>tr[i]>td>input(quantity)
-                    $get += `&${partNumber}=${quantity}`;//set part number and the quantity that the dealer wants to place
+            if ($('#address').parent().hasClass("is-invalid")) {
+                $('#invalidAddress').removeClass('hide');
+                return;
+            }else {
+                $('#invalidAddress').addClass('hide');
+                var $get = "?address=" + $("#address").val();
+                var shopping_partlist = document.getElementById('partList').children; //tbody>tr
+                for (i = 0; i < shopping_partlist.length; i++) {
+                    if (shopping_partlist[i].classList.contains('is-selected')) {//tbody>tr[i]
+                        var partNumber = shopping_partlist[i].children[1].textContent;//tbody>tr[i]>td(id)
+                        var quantity = shopping_partlist[i].children[3].children[0].value;//tbody>tr[i]>td>input(quantity)
+                        $get += `&${partNumber}=${quantity}`;//set part number and the quantity that the dealer wants to place
+                    }
                 }
+                //console.log($get);
+                window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
             }
-            //console.log($get);
-            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>${$get}`); //add part to the shopping cart
         });
 
         $('#btn_delete').on('click', function () {
@@ -318,7 +335,8 @@ window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=7
             <div id="shopping_cart">
                 <div>
                     <!--      form method="post"-->
-                    <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="get" id="order"
+                    <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="get" onsubmit="checkAddress();"
+                          id="order"
                           onchange="selectedCheckBox()">
                         <!--   control bar-->
                         <div class="my-control-bar">
@@ -341,13 +359,15 @@ window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=7
                             </button>
 
                         </div>
+                        <div class='error-msg hide' style='font-size: 20px;' id="invalidAddress">*Address is invalid.</div>
                         <ul type="none" class="mdc-typography--headline6">
                             <li>
                                 <!--    Delivery address-->
                                 Delivery Address:
                                 <div class="mdl-textfield mdl-js-textfield">
                                     <input class="mdl-textfield__input" name="deliveryAddress" type="text" id="address"
-                                           title="8 digits" pattern="[a-zA-Z\d., ]{5,255}" maxlength="255"
+                                           title="Your delivery address" pattern="[a-zA-Z\d., ?';\[\]/\-_=]{5,255}"
+                                           maxlength="255"
                                            placeholder="e.g.:flat  14/A, O house, Hello Road Street"
                                            value="<?php echo $address; ?>"
                                            readonly required style="padding: 0">
@@ -374,7 +394,7 @@ window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=7
 
                       <?php if (isset($_GET['insufficient'])) {
                         echo "<div class='error-msg' style='font-size: 20px;'>Place order fail! The stock quantity of the following part(s) is not enouth:<br><br>{$_GET['insufficient']} </div>";
-                      } ?>
+                      }?>
 
                         <div style="margin-top: 24px;">
                             <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
