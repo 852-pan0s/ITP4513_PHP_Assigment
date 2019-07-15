@@ -60,11 +60,19 @@ if (isset($_GET['cancel_order'])) { //if the dealer wants to cancel the order
   $rs = mysqli_query($conn, $sql);
   $rc = mysqli_fetch_array($rs);
   if (($rc["status"] == "1" && $cStatus == "4")) { //1 = in processing , cStatus=change status, only in processing order can be canceled
+    $sql = "SELECT * FROM orderpart WHERE orderID = $id";
+    $rs = mysqli_query($conn, $sql);
+    //add the quantity back
+    while ($rc = mysqli_fetch_assoc($rs)) {
+      extract($rc);
+      $sql = "UPDATE part set stockQuantity = stockQuantity+$quantity WHERE partNumber = $partNumber";
+      mysqli_query($conn, $sql);
+    }
     $sql = "UPDATE orders SET status = 4 WHERE orderID = {$_GET['cancel_order']}";
-    mysqli_query($conn,$sql);
-    header("location:{$_SERVER['PHP_SELF']}?ok");//redirect to login page and show the ok message
+    mysqli_query($conn, $sql);
+    header("location:{$_SERVER['PHP_SELF']}?ok");//redirect to history page and show the ok message
   } else {
-    header("location:{$_SERVER['PHP_SELF']}?fail");//redirect to login page and show the fail message
+    header("location:{$_SERVER['PHP_SELF']}?fail=Order Id: $id is delivering.");//redirect to history page and show the fail message
   }
 }
 if (isset($_GET['confirm_order'])) {
@@ -75,10 +83,10 @@ if (isset($_GET['confirm_order'])) {
   $rc = mysqli_fetch_array($rs);
   if (($rc["status"] == "2" && $cStatus == "3")) {//only delivery order can change to completed order
     $sql = "UPDATE orders SET status = 3 WHERE orderID = $id";
-    mysqli_query($conn,$sql);
+    mysqli_query($conn, $sql);
     header("location:{$_SERVER['PHP_SELF']}?ok");//redirect to login page and show the ok message
   } else {
-    header("location:{$_SERVER['PHP_SELF']}?fail");//redirect to login page and show the fail message
+    header("location:{$_SERVER['PHP_SELF']}?fail=Order Id: $id was confirmed before. If it is not your action, please reset your password.");//redirect to login page and show the fail message
   }
 }
 if (isset($_GET["q"])) { //if keyword is provides
@@ -155,8 +163,8 @@ $rs = mysqli_query($conn, $sql);
                       <div class="success-msg">Your action has been done successfully!</div>
                   </div>
               <?php } else if (isset($_GET["fail"])) { ?>
-                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                      <div class="error-msg">Fail! Please try again.</div>
+                  <div class="full mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                      <div class="full error-msg">Fail! <?php echo $_GET['fail'];?></div>
                   </div>
               <?php } ?>
                 <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">

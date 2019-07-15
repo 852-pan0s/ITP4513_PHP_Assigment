@@ -102,37 +102,58 @@ if (isset($_GET["delete"])) {//delete part
 }
 
 if (isset($_GET["address"])) {// place order
-  $skip = 0; //set for skip the part which is not clicked
-  $delete = ""; //used for delete the part from the shopping cart
-  $deliveryAddress = $_GET["address"];
-  $today = date("Y-m-d"); //today
-  $sql = "INSERT INTO orders VALUES(null,'$dealerID','$today','$deliveryAddress',1)";
-  mysqli_query($conn, $sql); //Create a new order
-  foreach ($_GET as $part => $quantity) {
+  $insufficientStock = false; //used for check the stock is enough
+  $insufficientPart = "";
+  $skip = 0;//skip the first element of $_GET (delivery address)
+  //check the part stock quantity is enought for the dealer to place an order
+  foreach ($_GET as $part => $quantity) {//$_GET["partNumber"] = $quantity
     if ($skip++ == 0) continue; //skip the first element (delivery address)
-    // echo "$part = $quantity<br>";
-    $delete .= $part . ",";
-    $_SESSION["placeOrder"][$part] = "$quantity";//set the part and the order quantity
-    $sql = "SELECT * FROM orders WHERE dealerID = '$dealerID' ORDER BY orderID DESC"; //get the latest order id
-    $rs = mysqli_query($conn, $sql);
-    $rc = mysqli_fetch_assoc($rs);
-    extract($rc);
-  }
-  //insert the part and quantity to orderpart
-  foreach ($_SESSION["placeOrder"] as $part => $quantity) {
     $sql = "SELECT * FROM part WHERE partNumber = $part";
     $rs = mysqli_query($conn, $sql);
     $rc = mysqli_fetch_assoc($rs);
-    extract($rc);
-    $sql = "INSERT INTO orderpart VALUES($orderID, $part, $quantity,$stockPrice)";
-    mysqli_query($conn, $sql);
+    if ($rc["stockQuantity"] < $quantity) {
+      $insufficientStock = true;
+      $insufficientPart .= "{$rc['partName']}, "; //record the part which the stock is insufficient
+    }
   }
+  if ($insufficientStock) {
+    $insufficientPart = substr($insufficientPart, 0, strlen($insufficientPart) - 2);//delete last ', '
+    header("location:{$_SERVER['PHP_SELF']}?insufficient=$insufficientPart");
+  } else { //if the stock is enough
+    $skip = 0; //skip the first element of $_GET (delivery address)
+    $delete = ""; //used for delete the part from the shopping cart
+    $deliveryAddress = $_GET["address"];
+    $today = date("Y-m-d"); //today
+    $sql = "INSERT INTO orders VALUES(null,'$dealerID','$today','$deliveryAddress',1)";
+    mysqli_query($conn, $sql); //Create a new order
+    foreach ($_GET as $part => $quantity) {//$_GET["partNumber"] = $quantity
+      if ($skip++ == 0) continue; //skip the first element (delivery address)
+      // echo "$part = $quantity<br>";
+      $delete .= $part . ",";
+      $_SESSION["placeOrder"][$part] = "$quantity";//set the part and the order quantity
+      $sql = "SELECT * FROM orders WHERE dealerID = '$dealerID' ORDER BY orderID DESC"; //get the latest order id
+      $rs = mysqli_query($conn, $sql);
+      $rc = mysqli_fetch_assoc($rs);
+      extract($rc);
+    }
+    //insert the part and quantity to orderpart
+    foreach ($_SESSION["placeOrder"] as $part => $quantity) {
+      $sql = "SELECT * FROM part WHERE partNumber = $part";
+      $rs = mysqli_query($conn, $sql);
+      $rc = mysqli_fetch_assoc($rs);
+      extract($rc);
+      $sql = "UPDATE part set stockQuantity = stockQuantity-$quantity WHERE partNumber = $part";
+      mysqli_query($conn, $sql);
+      $sql = "INSERT INTO orderpart VALUES($orderID, $part, $quantity,$stockPrice)";
+      mysqli_query($conn, $sql);
+    }
 
-  unset($_SESSION["placeOrder"]);
-  $deletePart = substr($delete, 0, strlen($delete) - 1); //remove last ','
-  //echo($deletePart);
-  delete($deletePart);
-  header("location:shopping_cart.php?ok=$orderID");
+    unset($_SESSION["placeOrder"]);
+    $deletePart = substr($delete, 0, strlen($delete) - 1); //remove last ','
+    //echo($deletePart);
+    delete($deletePart);
+    header("location:shopping_cart.php?ok=$orderID");
+  }
 }
 
 function delete($delete)
@@ -351,6 +372,9 @@ window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=7
                             </li>
                         </ul>
 
+                      <?php if (isset($_GET['insufficient'])) {
+                        echo "<div class='error-msg' style='font-size: 20px;'>Place order fail! The stock quantity of the following part(s) is not enouth:<br><br>{$_GET['insufficient']} </div>";
+                      } ?>
 
                         <div style="margin-top: 24px;">
                             <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">

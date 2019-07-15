@@ -39,7 +39,8 @@ if (!isset($_SESSION["email"])) {//if the admin does not log in before
       //find all the order part information and check the stock of them.
       $sql = "SELECT * FROM orderpart WHERE orderID = $id";
       $rs = mysqli_query($conn, $sql);
-      //checking
+      //checking the stock is enough for delivery
+      /*
       while ($rc = mysqli_fetch_assoc($rs)) {
         extract($rc);
         $sql = "SELECT * FROM part WHERE partNumber = $partNumber";
@@ -49,8 +50,10 @@ if (!isset($_SESSION["email"])) {//if the admin does not log in before
           header("location:detail.php?orderID=$id&out_of_stock={$result['partName']}");//redirect to order detail page and show the ok message
           die(); //stop this php page
         }
-      }
+      }*/
+
       //deduct the stock qty
+      /*
       $sql = "SELECT * FROM orderpart WHERE orderID = $id";
       $rs = mysqli_query($conn, $sql);
       while ($rc = mysqli_fetch_assoc($rs)) {
@@ -58,7 +61,7 @@ if (!isset($_SESSION["email"])) {//if the admin does not log in before
         $sql = "UPDATE part set stockQuantity = stockQuantity-$quantity WHERE partNumber = $partNumber";
      //   echo "$sql<br>";
         mysqli_query($conn, $sql);
-      }
+      }*/
 
       //Change the order status to delivery
       $sql = "UPDATE orders SET status = $status WHERE orderID = $id";

@@ -165,13 +165,17 @@ $totalAmount = 0;
                           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
                       Start Delivery
                   </button>
-              <?php }
-              if ($status != "4") { ?>
                   <button id="btn_cancel"
                           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
                       Cancel Order
                   </button>
               <?php }
+              // if ($status != "4") { ?>
+                <!--                  <button id="btn_cancel"-->
+                <!--                          class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">-->
+                <!--                      Cancel Order-->
+                <!--                  </button>-->
+              <?php //}
               echo "</div>"; ?>
 
             </div>
