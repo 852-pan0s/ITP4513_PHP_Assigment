@@ -29,15 +29,6 @@
     <link rel="stylesheet" href="./css/mycss.css">
     <script src="./js/myjs.js"></script>
 
-
-    <script>
-        $(document).ready(function () {
-            $('#btn_search').on('click', function () {
-                var search = $('#search').val();
-                window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>?q=${search}`); //add part to the shopping cart
-            })
-        });
-    </script>
 </head>
 
 <body class="mdc-typography">
@@ -99,6 +90,24 @@ if (isset($_GET["q"])) { //if keyword is provides
 $rs = mysqli_query($conn, $sql);
 
 ?>
+
+<script>
+    $(document).ready(function () {
+        $('#btn_search').on('click', function () {
+            var search = $('#search').val();
+            window.location.assign(`<?php echo $_SERVER["PHP_SELF"] ?>?q=${search}`); //add part to the shopping cart
+        })
+
+      <?php if(isset($_GET['new'])){
+      echo "window.open('detail.php?orderID={$_GET['new']}', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes');";
+      ?>
+        $("td").filter(function () {
+            return $(this).text() === "<?php echo $_GET['new'];?>";
+        }).css('color', 'red').text("New! <?php echo $_GET['new'];?>");
+    });
+    <?php }?>
+</script>
+
 <header class="mdc-top-app-bar app-bar" id="app-bar">
     <div class="mdc-top-app-bar__row">
         <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
@@ -164,7 +173,7 @@ $rs = mysqli_query($conn, $sql);
                   </div>
               <?php } else if (isset($_GET["fail"])) { ?>
                   <div class="full mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                      <div class="full error-msg">Fail! <?php echo $_GET['fail'];?></div>
+                      <div class="full error-msg">Fail! <?php echo $_GET['fail']; ?></div>
                   </div>
               <?php } ?>
                 <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">

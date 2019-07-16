@@ -59,6 +59,10 @@ if (!isset($_SESSION["dealerID"])) {//if the dealer does not log in before
   extract($rc);
 }
 
+if (isset($_GET["ok"])) {
+  echo "<script> window.location.assign('history.php?new={$_GET['ok']}');</script>";
+}
+
 if (isset($_GET["page"])) {//if the dealer click the page button
   $page = $_GET["page"];
   echo "<script>
@@ -104,6 +108,8 @@ if (isset($_GET["delete"])) {//delete part
 if (isset($_GET["address"])) {// place order
   $insufficientStock = false; //used for check the stock is enough
   $insufficientPart = "";
+  $unavailableStatus = false; //used for check the stock is available or not
+  $unavailablePart = "";
   $skip = 0;//skip the first element of $_GET (delivery address)
   //check the part stock quantity is enought for the dealer to place an order
   foreach ($_GET as $part => $quantity) {//$_GET["partNumber"] = $quantity
@@ -115,9 +121,22 @@ if (isset($_GET["address"])) {// place order
       $insufficientStock = true;
       $insufficientPart .= "{$rc['partName']}, "; //record the part which the stock is insufficient
     }
+    if ($rc["stockStatus"] != 1) { //if the part is not available
+      $unavailableStatus = true;
+      $unavailablePart .= "{$rc['partName']}, "; //record the part which the status is unavailable
+    }
+  }
+  if ($unavailableStatus) {
+    $unavailablePart = substr($unavailablePart, 0, strlen($unavailablePart) - 2);//delete last ', ';
   }
   if ($insufficientStock) {
     $insufficientPart = substr($insufficientPart, 0, strlen($insufficientPart) - 2);//delete last ', '
+  }
+  if ($unavailableStatus && $insufficientStock) {
+    header("location:{$_SERVER['PHP_SELF']}?insufficient=$insufficientPart&unavailablePart=$unavailablePart");
+  } else if ($unavailableStatus) {
+    header("location:{$_SERVER['PHP_SELF']}?unavailablePart=$unavailablePart");
+  } else if ($insufficientStock) {
     header("location:{$_SERVER['PHP_SELF']}?insufficient=$insufficientPart");
   } else { //if the stock is enough
     $skip = 0; //skip the first element of $_GET (delivery address)
@@ -174,7 +193,7 @@ function delete($delete)
             $('#invalidAddress').removeClass('hide');
             return false;
 
-        } else{
+        } else {
             $('#invalidAddress').addClass('hide');
             return true;
         }
@@ -185,7 +204,7 @@ function delete($delete)
             if ($('#address').parent().hasClass("is-invalid")) {
                 $('#invalidAddress').removeClass('hide');
                 return;
-            }else {
+            } else {
                 $('#invalidAddress').addClass('hide');
                 var $get = "?address=" + $("#address").val();
                 var shopping_partlist = document.getElementById('partList').children; //tbody>tr
@@ -319,14 +338,6 @@ function delete($delete)
         <!--New order-->
         <div class="form_lar">
             <h2 class="mdc-typography--headline5">Order</h2>
-          <?php if (isset($_GET["ok"])) {
-            echo "<script>
-window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=720,width=1280,scrollbars=yes,status=yes');
- setTimeout(function (){window.location.assign('history.php')},100);
-</script>";
-            ?>
-          <?php } ?>
-
             <button id="btn_new" type="button"
                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent my-control-bar-button"
                     onclick="window.location.assign('shopping_cart.php?neworder=true')">New
@@ -359,7 +370,8 @@ window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=7
                             </button>
 
                         </div>
-                        <div class='error-msg hide' style='font-size: 20px;' id="invalidAddress">*Address is invalid.</div>
+                        <div class='error-msg hide' style='font-size: 20px;' id="invalidAddress">*Address is invalid.
+                        </div>
                         <ul type="none" class="mdc-typography--headline6">
                             <li>
                                 <!--    Delivery address-->
@@ -393,8 +405,11 @@ window.open('detail.php?orderID={$_GET["ok"]}', '_blank', 'location=yes,height=7
                         </ul>
 
                       <?php if (isset($_GET['insufficient'])) {
-                        echo "<div class='error-msg' style='font-size: 20px;'>Place order fail! The stock quantity of the following part(s) is not enouth:<br><br>{$_GET['insufficient']} </div>";
-                      }?>
+                        echo "<div class='error-msg' style='font-size: 20px;'>Place order fail! The stock quantity of the following part(s) is not enouth:<br>{$_GET['insufficient']} </div>";
+                      }
+                      if (isset($_GET['unavailablePart'])) {
+                        echo "<div class='error-msg' style='font-size: 20px;'><br>Place order fail! The status of the following part(s) is unavailable:<br>{$_GET['unavailablePart']} </div>";
+                      } ?>
 
                         <div style="margin-top: 24px;">
                             <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">

@@ -43,13 +43,13 @@ $database = "projectDB";
 $username = "root";
 $password = "";
 $conn = mysqli_connect($hostname, $username, $password, $database);
-if (!isset($_SESSION["dealerID"])|| (!isset($_GET['orderID']))) {//check if the user logged in the system or no order id is provided
+if (!isset($_SESSION["dealerID"]) || (!isset($_GET['orderID']))) {//check if the user logged in the system or no order id is provided
   header("location:login.php");//redirect to login page
 } else {
   $sql = "SELECT o.orderID, o.dealerID, o.orderDate, o.deliveryAddress, o.status, d.name 
-FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = d.dealerID";
+FROM orders o, dealer d WHERE o.orderID = '{$_GET['orderID']}' AND o.dealerID = d.dealerID AND o.dealerID = '{$_SESSION['dealerID']}'";
   $rs = mysqli_query($conn, $sql); // Get dealer information
-  if(mysqli_num_rows($rs)<1)  header("location:history.php");
+  if (mysqli_num_rows($rs) < 1) header("location:history.php");
   $rc = mysqli_fetch_assoc($rs); // Take the first row
   extract($rc);
   $step1 = "";
@@ -130,6 +130,7 @@ $totalAmount = 0;
                     <li>
                         <div class="mdc-typography--headline5">Order ID: <?php echo $orderID; ?></div>
                     </li>
+                    <li>Dealer ID: <?php echo $dealerID; ?></li>
                     <li>Dealer name: <?php echo $name; ?></li>
                     <li class="mdc_typography mdc-typography--headline6">Delivery
                         Address: <?php echo $deliveryAddress; ?></li>
@@ -179,7 +180,7 @@ HTML_CODE;
                     <thead>
                     <tr>
                         <th class="mdl-data-table__cell--non-numeric">Total Amount</th>
-                        <th>$<span id="totalAmount"><?php echo $totalAmount;?></span></th>
+                        <th>$<span id="totalAmount"><?php echo $totalAmount; ?></span></th>
                     </tr>
                     </thead>
                 </table>
